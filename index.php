@@ -188,12 +188,9 @@ class Landbot {
     echo $this->getWpdb()->last_query;
   }
 
-
-
-
   /**
-   * Adds Admin Scripts for the Ajax call
-   */
+  * Adds Admin Scripts for the Ajax call
+  */
   public function addAdminScripts() {
 	wp_enqueue_style('landbot-admin', LANDBOT_URL. 'assets/css/admin.css', false, 1.0);
     wp_enqueue_script('landbot-admin', LANDBOT_URL. 'assets/js/admin.js', array(), 1.1);
@@ -259,28 +256,22 @@ class Landbot {
   */
   public function adminLayout() {
 
-	$data = $this->getData();
 
-	$api_response = $this->getCustomers($data['authorization']);
+  ?>
 
-	$not_ready = (empty($data['public_key']) || empty($api_response) || isset($api_response['error']));
-	$has_engager_preview = (isset($_GET['landbot-demo-engager']) && $_GET['landbot-demo-engager'] === 'go');
-
-	?>
-
-  <div class="wrap">
-    <form id="landbot-admin-form" class="postbox">
-      <div class="form-group inside">
-        <h1>Add Landbot</h1>
-        <p>You can <a href="https://landbot.io" target="_blank">create an account here.</a></p>
+    <div class="wrap">
+      <form id="landbot-admin-form" class="postbox">
+        <div class="form-group inside">
+          <h1>Add Landbot</h1>
+          <p>You can <a href="https://landbot.io" target="_blank">create an account here.</a></p>
                            
-	    <div class="content-section">
-          <div>
-            <label>1. Copy and paste your landbot token here*</label>
-            <label>*You can find it under your Landbot > Share section</label>
-          </div>
-          <div class="authorization">
-            <div> TOKEN: </div>
+	      <div class="content-section">
+            <div>
+              <label>1. Copy and paste your landbot token here*</label>
+              <label>*You can find it under your Landbot > Share section</label>
+            </div>
+            <div class="authorization">
+              <div> TOKEN: </div>
               <div>
                 <input
                   class="regular-text" 
@@ -292,6 +283,7 @@ class Landbot {
               </div>
             </div>
           </div>
+
           <div class="content-section">
             <div>
               <label>2. Display Format</label>
@@ -324,6 +316,7 @@ class Landbot {
               </div>
             </div>
           </div>
+          
           <div class="content-section">
             <div>
                 <label>3. More Options</label>
@@ -347,18 +340,22 @@ class Landbot {
                   </div>
                 </div>
               </div>
+              
               <div id="embed-selected"></div>
+            
             </div>
           </div>
-          <div id="alert-message"></div>
+          
+            <div id="alert-message"></div>
+          
           </div>
-            <div class="inside footer">
-              <button class="button button-primary" id="landbot-admin-save" type="submit">
-                Ok
-              </button>
-            </div>
+          <div class="inside footer">
+            <button class="button button-primary" id="landbot-admin-save" type="submit">
+              Ok
+            </button>
+          </div>
       </form>
-  </div>
+    </div>
 
   <?php
 
