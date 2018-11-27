@@ -23,305 +23,253 @@ if(!defined('LANDBOT_ENDPOINT'))
 if(!defined('LANDBOT_PROTOCOL'))
 	define('LANDBOT_PROTOCOL', 'https');
 
-/*
- * Main class
- */
-/**
- * Class Landbot
- *
- * This class creates the option page and add the web app script
- */
-class Landbot
-{
+class Landbot {
 
-	/**
-	 * The security nonce
-	 *
-	 * @var string
-	 */
-	private $_nonce = 'landbot_admin';
+  private $_nonce = 'landbot_admin';
+  private $option_name = 'landbot_data';
 
-	/**
-	 * The option name
-	 *
-	 * @var string
-	 */
-    private $option_name = 'landbot_data';
-	/**
-	 * Landbot constructor.
-     *  
-     * The main plugin actions registered for WordPress
-	 */
-	public function __construct()
-    {
+  public function __construct() {
+	// Admin page calls
+	add_action('admin_menu',                array($this,'addAdminMenu'));
+	add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
+	add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
+	// WC integration
+    add_action( 'wp_enqueue_scripts', array($this, 'ajax_scripts') );
 
-		// Admin page calls
-		add_action('admin_menu',                array($this,'addAdminMenu'));
-		add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
-		add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
-
-		// WC integration
-        add_action('woocommerce_email_footer',  array($this,'wcFooter'));
-        add_action( 'wp_enqueue_scripts', array($this, 'ajax_scripts') );
-
-    }
+  }
     
-    private function getWpdb() 
-    {
-        global $wpdb;
+  private function getWpdb() {
+    global $wpdb;
 
-        return $wpdb;
-    }
+    return $wpdb;
+  }
 
-    private function getJalDbVersion()
-    {
-        global $jal_db_version;
+  private function getJalDbVersion() {
+    global $jal_db_version;
 
-        return $jal_db_version;
-    }
+    return $jal_db_version;
+  }
 
-	/**
-	 * Returns the saved options data as an array
-     *
-     * @return array
-	 */
-	private function getData()
-    {
-	    return get_option($this->option_name, array());
-    }
+  /**
+   * Returns the saved options data as an array
+   *
+   * @return array
+   */
+  private function getData() {
+    return get_option($this->option_name, array());
+  }
 
-	/**
-	 * Callback for the Ajax request
-	 *
-	 * Updates the options data
-     *
-     * @return void
-	 */
-	public function storeAdminData()
-    {
+  /**
+   * Callback for the Ajax request
+   *
+   * Updates the options data
+   *
+   * @return void
+   */
+  public function storeAdminData() {
 
-		if (wp_verify_nonce($_POST['security'], $this->_nonce ) === false)
-			die('Invalid Request! Reload your page please.');
+    if (wp_verify_nonce($_POST['security'], $this->_nonce ) === false)
+	  die('Invalid Request! Reload your page please.');
 
-        $table_name = $this->getWpdb()->prefix . 'landbot';
+    $table_name = $this->getWpdb()->prefix . 'landbot';
         
-        // save params in DB table landbot
+    $token = $_POST['authorization'];
+    $displayFormat = strtolower($_POST['displayFormat']);
+    $hideBackground = ($_POST['hideBackground'] === 'true');
+    $hideHeader = ($_POST['hideHeader'] === 'true');
+    $widgetHeight = intval($_POST['widgetHeight']);
 
-        $token = $_POST['authorization'];
-        $displayFormat = strtolower($_POST['displayFormat']);
-        $hideBackground = ($_POST['hideBackground'] === 'true');
-        $hideHeader = ($_POST['hideHeader'] === 'true');
-        $widgetHeight = intval($_POST['widgetHeight']);
-
-        if($this -> checkExistTableInDB($table_name)) {
-          $this -> createTable($table_name);
-          $this -> insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
-        } else {
-          $this -> updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
-        }
+    if($this -> checkExistTableInDB($table_name)) {
+      $this -> createTable($table_name);
+      $this -> insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+    } else {
+      $this -> updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+    }
         
-		die();
+    die();
 
-    }
+  }
 
-    /**
-	 * create table in mysql
-     *
-     * @param $table_name string
-     * 
-     * @return boolean
-	 */
-    private function checkExistTableInDB($table_name) {
-        return $this->getWpdb()->get_var("SHOW TABLES LIKE '$table_name'") != $table_name;
-    }
+  /**
+  * create table in mysql
+  *
+  * @param $table_name string
+  * 
+  * @return boolean
+  */
+  private function checkExistTableInDB($table_name) {
+    return $this->getWpdb()->get_var("SHOW TABLES LIKE '$table_name'") != $table_name;
+  }
 
-    /**
-	 * create table in mysql
-     *
-     * @param $table_name string
-     * 
-     * @return void
-	 */
-    
-    private function createTable($table_name) 
-    {
-	
-        $charset_collate = $this->getWpdb()->get_charset_collate();
+  /**
+   * create table in mysql
+   *
+   * @param $table_name string
+   * 
+   * @return void
+   */  
+  private function createTable($table_name) {
+    $charset_collate = $this->getWpdb()->get_charset_collate();
 
-        $sql = "CREATE TABLE $table_name (
-          id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-          token text,
-          displayFormat text,
-          hideBackground boolean,
-          hideHeader boolean,
-          widgetHeight int
-        ) $charset_collate;";
+    $sql = "CREATE TABLE $table_name (
+      id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      token text,
+      displayFormat text,
+      hideBackground boolean,
+      hideHeader boolean,
+      widgetHeight int
+    ) $charset_collate;";
 
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        dbDelta( $sql );
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
 
-        add_option( 'jal_db_version', $this->getJalDbVersion() );
+    add_option( 'jal_db_version', $this->getJalDbVersion() );
         
-    }
+  }
 
-    /**
-	 * insert data in landbot table
-     *
-     * @param $token string
-     * @param $displayFormat string
-     * @param $hideBackground boolean
-     * @param $hideHeader boolean
-     * @param $widgetHeight integer
-     * @param $table_name string
-     * 
-     * @return void
-	 */
-    private function insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) 
-    {
-        $this->getWpdb()->insert( 
-            $table_name, 
-            array( 
-                'token' => $token,
-                'displayFormat' => $displayFormat,
-                'hideBackground' =>  $hideBackground,
-                'hideHeader' => $hideHeader,
-                'widgetHeight' => $widgetHeight 
-            ) 
-        );
-
-        $this->getWpdb()->show_errors();
-
-        echo $this->getWpdb()->last_query;
-    }
-
-
-    /**
-	 * insert data in landbot table
-     *
-     * @param $token string
-     * @param $displayFormat string
-     * @param $hideBackground boolean
-     * @param $hideHeader boolean
-     * @param $widgetHeight integer
-     * @param $table_name string
-     * 
-     * @return void
-	 */
-    private function updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) 
-    {
-        $this->getWpdb()->update( 
-            $table_name, 
-            array( 
-                'token' => $token,
-                'displayFormat' => $displayFormat,
-                'hideBackground' =>  $hideBackground,
-                'hideHeader' => $hideHeader,
-                'widgetHeight' => $widgetHeight 
-            ),
-            array( 
-                'id' => 1
-            )
-        );
-
-        $this->getWpdb()->show_errors();
-
-        echo $this->getWpdb()->last_query;
-    }
-
-
-
-
-	/**
-	 * Adds Admin Scripts for the Ajax call
-	 */
-	public function addAdminScripts()
-    {
-	    wp_enqueue_style('landbot-admin', LANDBOT_URL. 'assets/css/admin.css', false, 1.0);
-
-        wp_enqueue_script('polyfill', LANDBOT_URL. 'assets/js/polyfill.js', '', 1.1, true);
-        wp_enqueue_script('service', LANDBOT_URL. 'assets/js/service.js', '', 1.1, true);
-        wp_enqueue_script('errorHandler', LANDBOT_URL. 'assets/js/errorHandler.js', '', 1.1, true);
-        wp_enqueue_script('utils', LANDBOT_URL. 'assets/js/utils.js', '', 1.1, true);
+  /**
+   * insert data in landbot table
+   *
+   * @param $token string
+   * @param $displayFormat string
+   * @param $hideBackground boolean
+   * @param $hideHeader boolean
+   * @param $widgetHeight integer
+   * @param $table_name string
+   * 
+   * @return void
+   */
+  private function insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
         
-        wp_enqueue_script('landbot-admin', LANDBOT_URL. 'assets/js/admin.js', array(), 1.1);
+    $this->getWpdb()->insert( 
+      $table_name, 
+      array( 
+        'token' => $token,
+        'displayFormat' => $displayFormat,
+        'hideBackground' =>  $hideBackground,
+        'hideHeader' => $hideHeader,
+        'widgetHeight' => $widgetHeight 
+      ) 
+    );
+    $this->getWpdb()->show_errors();
+    echo $this->getWpdb()->last_query;
+  }
 
-		$admin_options = array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'_nonce'   => wp_create_nonce( $this->_nonce ),
-		);
 
-		wp_localize_script('landbot-admin', 'landbot_exchanger', $admin_options);
+  /**
+   * insert data in landbot table
+   *
+   * @param $token string
+   * @param $displayFormat string
+   * @param $hideBackground boolean
+   * @param $hideHeader boolean
+   * @param $widgetHeight integer
+   * @param $table_name string
+   * 
+   * @return void
+   */
+  private function updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
+        
+    $this->getWpdb()->update( 
+      $table_name, 
+      array( 
+        'token' => $token,
+        'displayFormat' => $displayFormat,
+        'hideBackground' =>  $hideBackground,
+        'hideHeader' => $hideHeader,
+        'widgetHeight' => $widgetHeight 
+      ),
+      array( 
+        'id' => 1
+      )
+    );
 
-    }
+    $this->getWpdb()->show_errors();
+    echo $this->getWpdb()->last_query;
+  }
 
-	/**
-	 * Adds the Landbot label to the WordPress Admin Sidebar Menu
-	 */
-	public function addAdminMenu()
-    {
-		add_menu_page(
-			__( 'Landbot', 'landbot' ),
-			__( 'Landbot', 'landbot' ),
-			'manage_options',
-			'landbot',
-			array($this, 'adminLayout'),
-			'dashicons-testimonial'
-		);
+
+
+
+  /**
+   * Adds Admin Scripts for the Ajax call
+   */
+  public function addAdminScripts() {
+	wp_enqueue_style('landbot-admin', LANDBOT_URL. 'assets/css/admin.css', false, 1.0);
+    wp_enqueue_script('landbot-admin', LANDBOT_URL. 'assets/js/admin.js', array(), 1.1);
+
+    wp_enqueue_script('polyfill', LANDBOT_URL. 'assets/js/polyfill.js', '', 1.1, true);
+    wp_enqueue_script('service', LANDBOT_URL. 'assets/js/service.js', '', 1.1, true);
+    wp_enqueue_script('errorHandler', LANDBOT_URL. 'assets/js/errorHandler.js', '', 1.1, true);
+    wp_enqueue_script('utils', LANDBOT_URL. 'assets/js/utils.js', '', 1.1, true);
+        
+
+	$admin_options = array(
+	  'ajax_url' => admin_url( 'admin-ajax.php' ),
+	  '_nonce'   => wp_create_nonce( $this->_nonce ),
+	);
+
+	wp_localize_script('landbot-admin', 'landbot_exchanger', $admin_options);
+
+  }
+
+  /**
+  * Adds the Landbot label to the WordPress Admin Sidebar Menu
+  */
+  public function addAdminMenu() {
+    add_menu_page(
+	  __( 'Landbot', 'landbot' ),
+	  __( 'Landbot', 'landbot' ),
+	  'manage_options',
+	  'landbot',
+	  array($this, 'adminLayout'),
+	  'dashicons-testimonial'
+	);
+  }
+
+  /**
+   * Make an API call to the Landbot API and returns the response
+   *
+   * @param $private_key string
+   *
+   *
+   * @return array
+   */
+  private function getCustomers() {
+
+    $data = array();
+        
+    $response = wp_remote_get( LANDBOT_PROTOCOL. '://api.'. LANDBOT_ENDPOINT .'/v1/customers/' ,
+      array( 'timeout' => 3000,
+        'headers' => array( 'Authorization' => $private_key) 
+      ));
+
+	if (is_array($response) && !is_wp_error($response)) {
+		$data = json_decode($response['body'], true);
 	}
 
-	/**
-	 * Make an API call to the Landbot API and returns the response
-     *
-     * @param $private_key string
-     *
-     *
-     * @return array
-	 */
-	private function getCustomers()
-    {
+	return $data;
 
-        $data = array();
-        
-        $response = wp_remote_get( LANDBOT_PROTOCOL. '://api.'. LANDBOT_ENDPOINT .'/v1/customers/' ,
-          array( 'timeout' => 3000,
-          'headers' => array( 'Authorization' => $private_key) 
-        ));
+  }
 
-	    if (is_array($response) && !is_wp_error($response)) {
-		    $data = json_decode($response['body'], true);
-	    }
+  /**
+  * Outputs the Admin Dashboard layout containing the form with all its options
+  *
+  * @return void
+  */
+  public function adminLayout() {
 
-	    return $data;
+	$data = $this->getData();
 
-    }
+	$api_response = $this->getCustomers($data['authorization']);
 
-	/**
-	 * Outputs the Admin Dashboard layout containing the form with all its options
-     *
-     * @return void
-	 */
-	public function adminLayout()
-    {
+	$not_ready = (empty($data['public_key']) || empty($api_response) || isset($api_response['error']));
+	$has_engager_preview = (isset($_GET['landbot-demo-engager']) && $_GET['landbot-demo-engager'] === 'go');
 
-		$data = $this->getData();
+	?>
 
-	    $api_response = $this->getCustomers($data['authorization']);
-
-	    $not_ready = (empty($data['public_key']) || empty($api_response) || isset($api_response['error']));
-	    $has_engager_preview = (isset($_GET['landbot-demo-engager']) && $_GET['landbot-demo-engager'] === 'go');
-
-	    ?>
-
-		<div class="wrap">
-
-			<?php if ($has_engager_preview): ?>
-                <p class="notice notice-warning p-10">
-					<?php _e( 'The demo engager is enabled. You will see the widget, exactly as it will be displayed on your site.<br> The only difference is that until the preview is turned off it will always come back compared to the live version.', 'landbot' ); ?>
-                </p>
-			<?php endif; ?>
-
-
-            <form id="landbot-admin-form" class="postbox">
+	<div class="wrap">
+        <form id="landbot-admin-form" class="postbox">
 
                 <div class="form-group inside">
                     <h1>
