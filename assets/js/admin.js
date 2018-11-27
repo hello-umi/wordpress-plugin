@@ -22,15 +22,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if(widgetElement) widgetElement.value = landbot_constants.widgetHeight;
   }
 
-  if(landbot_constants.hideBackground) {
+  if(parseInt(landbot_constants.hideBackground)) {
     var hideBackgroundElement = document.getElementById('hideBackground');
     checkMoreOptions(hideBackgroundElement, 'hideBackground');
   }
 
-  if(landbot_constants.hideHeader) {
+  if(parseInt(landbot_constants.hideHeader)) {
     var hideHeaderElement = document.getElementById('hideHeader');
     checkMoreOptions(hideHeaderElement, 'hideHeader')
   }
+
+  console.log(landbot_constants)
 
 
   addClassDisplayFormat(displayFormat);
