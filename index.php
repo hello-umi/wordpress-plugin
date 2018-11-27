@@ -349,7 +349,7 @@ class Landbot
                                 <div id="embed-selected"></div>
                             </div>
                         </div>
-
+                    <div id="alert-message"></div>
                 </div>
 
                 <hr>

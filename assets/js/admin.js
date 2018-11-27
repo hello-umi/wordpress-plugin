@@ -24,20 +24,21 @@ document.addEventListener('DOMContentLoaded', function() {
       var widgetHeight = document.getElementById('widget-height').value !== '' && !isNaN(document.getElementById('widget-height').value) ? document.getElementById('widget-height').value : 500; 
       formData.append('widgetHeight', widgetHeight);
     }
-    
+
     formData.append('action', 'store_admin_data');
     formData.append('security', landbot_exchanger._nonce);
-
+    
     if(document.getElementById('authorization').value !== '') {
       getData('POST', landbot_exchanger.ajax_url, formData).then(function (response) {
-        console.log(response);   
+        errorHandler(response);   
       })
+    } else {
+      showAlertMessage('Token is mandatory field.', '#c74d4d');
     }
 
   })
 
 }, false);
-
 
 function getData (method, url, params) {
 
@@ -63,6 +64,16 @@ function getData (method, url, params) {
     xhr.send(params);
   
   })
+}
+
+function errorHandler(response) {
+  if(response.status === 200) {
+    showAlertMessage('Configuration saved.', '#4dc753');
+  }
+
+  if(response.status === 500 || response.status === 400) {
+    showAlertMessage('Incorrect params or error with server.', '#c74d4d');
+  }
 }
 
 function checkMoreOptions (element, option) {
@@ -112,4 +123,16 @@ function showWidgetHeight(option) {
     var element = document.getElementById('embed-selected');
     element.innerHTML = '';
   }
+}
+
+function alertMessage(message) {
+  var alertMessage = message;
+  return alertMessage;
+}
+
+function showAlertMessage(message, color) {
+  var element = document.getElementById('alert-message');
+  element.innerText = '';
+  element.innerHTML = alertMessage(message); 
+  element.style.color = color;
 }

@@ -20,6 +20,10 @@
 }
 
 .content-section div:first-child label:first-child {
+  font-style: inherit;  
+}
+
+.content-section div:first-child label:first-child {
   font-size: 21px;
   font-weight: 600;
   margin-bottom: 10px;
@@ -176,4 +180,10 @@
 
 #embed-selected div:last-child{
   margin-left: 0;      
+}
+
+#alert-message {
+  text-align: center;
+  color: #c74d4d;
+  font-weight: 900;
 }
