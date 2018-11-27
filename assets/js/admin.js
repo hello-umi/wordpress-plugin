@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if(document.getElementById('authorization').value !== '') {
       getData('POST', landbot_exchanger.ajax_url, formData).then(function (response) {
+        console.log(response)
         errorHandler(response);   
       })
     } else {

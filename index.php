@@ -106,12 +106,33 @@ class Landbot
         $table_name = $this->getWpdb()->prefix . 'landbot';
         
         // save params in DB table landbot
-        $auth = $_POST['authorization'];
 
-        $this -> createTable($table_name);
-        $this -> insertToken($auth, $table_name);
+        $token = $_POST['authorization'];
+        $displayFormat = strtolower($_POST['displayFormat']);
+        $hideBackground = ($_POST['hideBackground'] === 'true');
+        $hideHeader = ($_POST['hideHeader'] === 'true');
+        $widgetHeight = intval($_POST['widgetHeight']);
+
+        if($this -> checkExistTableInDB($table_name)) {
+          $this -> createTable($table_name);
+          $this -> insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+        } else {
+          $this -> updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+        }
+        
 		die();
 
+    }
+
+    /**
+	 * create table in mysql
+     *
+     * @param $table_name string
+     * 
+     * @return boolean
+	 */
+    private function checkExistTableInDB($table_name) {
+        return $this->getWpdb()->get_var("SHOW TABLES LIKE '$table_name'") != $table_name;
     }
 
     /**
@@ -128,35 +149,87 @@ class Landbot
         $charset_collate = $this->getWpdb()->get_charset_collate();
 
         $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            token text
+          id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+          token text,
+          displayFormat text,
+          hideBackground boolean,
+          hideHeader boolean,
+          widgetHeight int
         ) $charset_collate;";
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        $check = dbDelta( $sql );
+        dbDelta( $sql );
 
         add_option( 'jal_db_version', $this->getJalDbVersion() );
         
     }
 
     /**
-	 * insert token in landbot table
+	 * insert data in landbot table
      *
      * @param $token string
+     * @param $displayFormat string
+     * @param $hideBackground boolean
+     * @param $hideHeader boolean
+     * @param $widgetHeight integer
      * @param $table_name string
      * 
      * @return void
 	 */
-    private function insertToken($token, $table_name) 
+    private function insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) 
     {
         $this->getWpdb()->insert( 
             $table_name, 
             array( 
-                'token' => $token,  
+                'token' => $token,
+                'displayFormat' => $displayFormat,
+                'hideBackground' =>  $hideBackground,
+                'hideHeader' => $hideHeader,
+                'widgetHeight' => $widgetHeight 
             ) 
         );
 
+        $this->getWpdb()->show_errors();
+
+        echo $this->getWpdb()->last_query;
     }
+
+
+    /**
+	 * insert data in landbot table
+     *
+     * @param $token string
+     * @param $displayFormat string
+     * @param $hideBackground boolean
+     * @param $hideHeader boolean
+     * @param $widgetHeight integer
+     * @param $table_name string
+     * 
+     * @return void
+	 */
+    private function updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) 
+    {
+        $this->getWpdb()->update( 
+            $table_name, 
+            array( 
+                'token' => $token,
+                'displayFormat' => $displayFormat,
+                'hideBackground' =>  $hideBackground,
+                'hideHeader' => $hideHeader,
+                'widgetHeight' => $widgetHeight 
+            ),
+            array( 
+                'id' => 1
+            )
+        );
+
+        $this->getWpdb()->show_errors();
+
+        echo $this->getWpdb()->last_query;
+    }
+
+
+
 
 	/**
 	 * Adds Admin Scripts for the Ajax call
