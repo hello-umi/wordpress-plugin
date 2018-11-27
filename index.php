@@ -29,13 +29,14 @@ class Landbot {
   private $option_name = 'landbot_data';
 
   public function __construct() {
-	// Admin page calls
-	add_action('admin_menu',                array($this,'addAdminMenu'));
-	add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
-	add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
-	// WC integration
+    // Admin page calls
+    add_action('admin_menu',                array($this,'addAdminMenu'));
+    add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
+    add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
+    // WC integration
     add_action( 'wp_enqueue_scripts', array($this, 'ajax_scripts') );
-
+    // Remove plugin
+    register_deactivation_hook( __FILE__, array($this, 'removeDataBaseWhenDisablePlugin'));
   }
     
   private function getWpdb() {
@@ -50,6 +51,16 @@ class Landbot {
     return $jal_db_version;
   }
 
+  private function getTableName() {
+    return $this->getWpdb()->prefix . 'landbot';  
+  }
+
+  function removeDataBaseWhenDisablePlugin() {
+    $table_name = $this->getTableName();
+    $sql = "DROP TABLE IF EXISTS $table_name";
+    $this->getWpdb()->query($sql);
+    delete_option("my_plugin_db_version");
+  }   
   /**
    * Returns the saved options data as an array
    *
@@ -71,7 +82,7 @@ class Landbot {
     if (wp_verify_nonce($_POST['security'], $this->_nonce ) === false)
 	  die('Invalid Request! Reload your page please.');
 
-    $table_name = $this->getWpdb()->prefix . 'landbot';
+    $table_name = $this->getTableName();
         
     $token = $_POST['authorization'];
     $displayFormat = strtolower($_POST['displayFormat']);
