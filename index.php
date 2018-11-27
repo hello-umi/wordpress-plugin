@@ -33,8 +33,6 @@ class Landbot {
     add_action('admin_menu',                array($this,'addAdminMenu'));
     add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
     add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
-    // WC integration
-    add_action( 'wp_enqueue_scripts', array($this, 'ajax_scripts') );
     // Remove plugin
     register_deactivation_hook( __FILE__, array($this, 'removeDataBaseWhenDisablePlugin'));
   }
@@ -110,6 +108,14 @@ class Landbot {
   */
   private function checkExistTableInDB($table_name) {
     return $this->getWpdb()->get_var("SHOW TABLES LIKE '$table_name'") != $table_name;
+  }
+
+  public function getDataConfigurationFromDB() {
+    $table_name = $this->getTableName();
+    if(!$this -> checkExistTableInDB($table_name)) {
+      $data = $this->getWpdb()->get_results("SELECT token, displayFormat, hideBackground, hideHeader, widgetHeight FROM $table_name WHERE id=1", OBJECT);
+      return $data;
+    }    
   }
 
   /**
@@ -210,14 +216,21 @@ class Landbot {
     wp_enqueue_script('service', LANDBOT_URL. 'assets/js/service.js', '', 1.1, true);
     wp_enqueue_script('errorHandler', LANDBOT_URL. 'assets/js/errorHandler.js', '', 1.1, true);
     wp_enqueue_script('utils', LANDBOT_URL. 'assets/js/utils.js', '', 1.1, true);
-        
+    
+    $data = $this->getDataConfigurationFromDB()[0];
+    $prueba = get_object_vars($data)['token'];
 
 	$admin_options = array(
-	  'ajax_url' => admin_url( 'admin-ajax.php' ),
-	  '_nonce'   => wp_create_nonce( $this->_nonce ),
+	  'ajax_url'      => admin_url( 'admin-ajax.php' ),
+      '_nonce'        => wp_create_nonce( $this->_nonce ),
+      'token'         => get_object_vars($data)['token'],
+      'displayFormat' => get_object_vars($data)['displayFormat'],
+      'hideBackground'=> get_object_vars($data)['hideBackground'],
+      'hideHeader'    => get_object_vars($data)['hideHeader'],
+      'widgetHeight'  => get_object_vars($data)['widgetHeight']
 	);
 
-	wp_localize_script('landbot-admin', 'landbot_exchanger', $admin_options);
+	wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
 
   }
 
@@ -275,7 +288,7 @@ class Landbot {
         <div class="form-group inside">
           <h1>Add Landbot</h1>
           <p>You can <a href="https://landbot.io" target="_blank">create an account here.</a></p>
-                           
+                      
 	      <div class="content-section">
             <div>
               <label>1. Copy and paste your landbot token here*</label>
@@ -339,7 +352,7 @@ class Landbot {
                     Hide background
                   </div>
                   <div class="check-button" >
-                    <div onclick="checkMoreOptions(this, 'hideBackground')" class="square-click left"></div>
+                    <div id="hideBackground" onclick="checkMoreOptions(this, 'hideBackground')" class="square-click left"></div>
                   </div>
                 </div>
                 <div class="option-check">
@@ -347,7 +360,7 @@ class Landbot {
                     Hide header
                   </div>
                   <div class="check-button" >
-                    <div onclick="checkMoreOptions(this, 'hideHeader')" class="square-click left"></div>
+                    <div id="hideHeader" onclick="checkMoreOptions(this, 'hideHeader')" class="square-click left"></div>
                   </div>
                 </div>
               </div>

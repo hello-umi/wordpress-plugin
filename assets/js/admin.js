@@ -3,9 +3,35 @@ var moreOptionsCheck = {
   hideHeader: false
 }
 
-var displayFormat = 'POPUP'
+var displayFormat = 'POPUP';
 
 document.addEventListener('DOMContentLoaded', function() {
+
+  if(landbot_constants.token) {
+    var tokenElement = document.getElementById('authorization');
+    tokenElement.value = landbot_constants.token;
+  }
+
+  if(landbot_constants.displayFormat) {
+    displayFormat = landbot_constants.displayFormat.toUpperCase();
+    showWidgetHeight(displayFormat);
+  }
+
+  if(landbot_constants.displayFormat === 'embed' && landbot_constants.widgetHeight) {
+    var widgetElement = document.getElementById('widget-height');
+    if(widgetElement) widgetElement.value = landbot_constants.widgetHeight;
+  }
+
+  if(landbot_constants.hideBackground) {
+    var hideBackgroundElement = document.getElementById('hideBackground');
+    checkMoreOptions(hideBackgroundElement, 'hideBackground');
+  }
+
+  if(landbot_constants.hideHeader) {
+    var hideHeaderElement = document.getElementById('hideHeader');
+    checkMoreOptions(hideHeaderElement, 'hideHeader')
+  }
+
 
   addClassDisplayFormat(displayFormat);
     
@@ -26,10 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     formData.append('action', 'store_admin_data');
-    formData.append('security', landbot_exchanger._nonce);
+    formData.append('security', landbot_constants._nonce);
     
     if(document.getElementById('authorization').value !== '') {
-      getData('POST', landbot_exchanger.ajax_url, formData).then(function (response) {
+      getData('POST', landbot_constants.ajax_url, formData).then(function (response) {
         console.log(response)
         errorHandler(response);   
       })
