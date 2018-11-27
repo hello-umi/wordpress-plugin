@@ -40,81 +40,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
 }, false);
 
-function getData (method, url, params) {
-
-  return new Promise( function (resolve, reject) {
-
-	  var xhr = new XMLHttpRequest();
-
-    xhr.open(method, url, true);
-
-	  xhr.addEventListener('load', function (e) {
-
-	    var response = {
-	      status: e.target.status
-	    }
-
-	    resolve(response);
-	  })
-
-	  xhr.addEventListener('error', function (e) {
-	    reject(e.target);
-	  })
-
-    xhr.send(params);
-  
-  })
-}
-
-function errorHandler(response) {
-  if(response.status === 200) {
-    showAlertMessage('Configuration saved.', '#4dc753');
-  }
-
-  if(response.status === 500 || response.status === 400) {
-    showAlertMessage('Incorrect params or error with server.', '#c74d4d');
-  }
-}
-
 function checkMoreOptions (element, option) {
   element.classList.toggle('left');
   moreOptionsCheck[option] = !moreOptionsCheck[option];
 }
-
+  
 function checkDisplayFormat (option) {
   removeClassDisplayFormat();
   addClassDisplayFormat(option);
   showWidgetHeight(option);
   displayFormat = option;
 }
-
+  
 function addClassDisplayFormat(format) {
   var elements = document.querySelectorAll('.square-display-format');
-  
+    
   elements.forEach(function (element) {
     if(element.innerText.replace(/\n/ig, '') === format) {
       element.classList.toggle('border-color');
       element.childNodes.forEach(function (childElement) {
         if(childElement.innerText === format) childElement.classList.toggle('display-format-color-selected');
-      })
-    }
-  })
+        })
+      }
+    })
 }
-
+  
 function removeClassDisplayFormat() {
   var borderColor = document.querySelector('.border-color')
   var formatColorSelected = document.querySelector('.display-format-color-selected')
-  
+    
   borderColor.classList.remove('border-color')
   formatColorSelected.classList.remove('display-format-color-selected')
 }
-
+  
 function widgetHeightElement() {
   var widgetHeight = '<div>Widget height (pixels)</div><div><input name="widget-height" id="widget-height" class="regular-text" placeholder="Default value 500 pixels" type="text" /></div>';
-
+  
   return widgetHeight;
 }
-
+  
 function showWidgetHeight(option) {
   if(option === 'EMBED') {
     var element = document.getElementById('embed-selected');
@@ -123,16 +87,4 @@ function showWidgetHeight(option) {
     var element = document.getElementById('embed-selected');
     element.innerHTML = '';
   }
-}
-
-function alertMessage(message) {
-  var alertMessage = message;
-  return alertMessage;
-}
-
-function showAlertMessage(message, color) {
-  var element = document.getElementById('alert-message');
-  element.innerText = '';
-  element.innerHTML = alertMessage(message); 
-  element.style.color = color;
 }

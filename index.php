@@ -166,8 +166,11 @@ class Landbot
 	    wp_enqueue_style('landbot-admin', LANDBOT_URL. 'assets/css/admin.css', false, 1.0);
 
         wp_enqueue_script('polyfill', LANDBOT_URL. 'assets/js/polyfill.js', '', 1.1, true);
+        wp_enqueue_script('service', LANDBOT_URL. 'assets/js/service.js', '', 1.1, true);
+        wp_enqueue_script('errorHandler', LANDBOT_URL. 'assets/js/errorHandler.js', '', 1.1, true);
+        wp_enqueue_script('utils', LANDBOT_URL. 'assets/js/utils.js', '', 1.1, true);
         
-        wp_enqueue_script('landbot-admin', LANDBOT_URL. 'assets/js/admin.js', array(), 1.0);
+        wp_enqueue_script('landbot-admin', LANDBOT_URL. 'assets/js/admin.js', array(), 1.1);
 
 		$admin_options = array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
