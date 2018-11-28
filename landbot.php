@@ -60,14 +60,6 @@ class Landbot {
     $sql = "DROP TABLE IF EXISTS $table_name";
     $this->getWpdb()->query($sql);
     delete_option("my_plugin_db_version");
-  }   
-  /**
-   * Returns the saved options data as an array
-   *
-   * @return array
-   */
-  private function getData() {
-    return get_option($this->option_name, array());
   }
 
   /**
@@ -96,6 +88,10 @@ class Landbot {
     } else {
       $this -> updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
     }
+
+    $data = $this->getDataConfigurationFromDB()[0];
+
+    $shortCode = $this->shortCode($data);
         
     die();
 
@@ -122,7 +118,6 @@ class Landbot {
   }
 
   /**
-   * create table in mysql
    *
    * @param $table_name string
    * 
@@ -148,7 +143,6 @@ class Landbot {
   }
 
   /**
-   * insert data in landbot table
    *
    * @param $token string
    * @param $displayFormat string
@@ -171,13 +165,10 @@ class Landbot {
         'widgetHeight' => $widgetHeight 
       ) 
     );
-    $this->getWpdb()->show_errors();
-    echo $this->getWpdb()->last_query;
   }
 
 
   /**
-   * insert data in landbot table
    *
    * @param $token string
    * @param $displayFormat string
@@ -203,9 +194,6 @@ class Landbot {
         'id' => 1
       )
     );
-
-    $this->getWpdb()->show_errors();
-    echo $this->getWpdb()->last_query;
   }
 
   /**
