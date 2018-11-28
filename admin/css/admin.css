@@ -1,0 +1,189 @@
+.postbox {
+  padding: 13px 35px 13px;    
+}
+
+.content-section {
+  margin-bottom: 30px;
+}
+
+.content-section div:first-child {
+  margin-bottom: 10px;    
+}
+
+.content-section div:first-child label {
+  display: block;      
+}
+
+.content-section div:first-child label:last-child {
+  font-style: italic;
+  margin-left: 20px;  
+}
+
+.content-section div:first-child label:first-child {
+  font-style: inherit;  
+}
+
+.content-section div:first-child label:first-child {
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  margin-left: 0;  
+}
+
+.content-section:last-child div:first-child label:last-child {
+  font-style: inherit;
+}
+
+.authorization div:first-child, .authorization div:last-child {
+  display: inline-block;
+}
+
+.authorization div:first-child {
+  margin-left: 20px;
+  font-weight: 400;
+  font-size: 19px;
+}
+
+.authorization div:last-child input {
+  height: 35px;
+  width: 400px;
+}
+
+.square-display-format {
+  cursor: pointer;
+  display: inline-block;
+  width: 200px;
+  height: 200px;
+  border: 3px solid #ccc;
+  border-radius: 8px;
+  margin-right: 30px;
+  margin-left: 20px;
+}
+
+.square-display-format img {
+  width: 200px;
+  height: 200px;     
+}
+
+.square-display-format div:last-child {
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.more-options {
+  font-weight: 700;
+}
+
+.more-options div {
+  margin-left: 20px;
+  display: block;      
+}
+
+.more-options input {
+  height: 35px;
+  width: 400px;   
+}
+
+.more-options div:first-child {
+  margin: 25px 20px;
+  margin-bottom: 15px;
+}
+
+.more-options div:first-child div:first-child { 
+  display: block;
+  margin: 0 ;     
+}
+
+.more-options div:first-child div:last-child {
+  display: block;
+  margin: 0;     
+}
+
+.more-options div:first-child div:first-child div {
+  display: inline-block;
+  margin: 0;    
+}
+  
+.more-options div:first-child div:last-child div {
+  display: inline-block;
+  margin: 0;    
+}
+
+.option-check {  
+  padding: 12px 0;   
+  position: relative;
+  border-top: 2px solid #ccc;
+  width: 400px;
+}
+
+.option-check:last-child {
+  border-bottom: 2px solid #ccc;    
+}
+
+.option-check div:last-child {
+  position: absolute;
+  right: 0;        
+}
+
+.footer {
+  height: 20px;
+}
+
+.inside button {
+  position: absolute;
+  right: 15px;
+}
+
+.check-button {
+  position: absolute;
+  right: 15px;
+  width: 70px;
+  height: 18px;
+  background: linear-gradient(90deg, #46b450 50%, #CCC 50%);
+}
+
+.square-click {
+  cursor: pointer;
+  position: absolute;
+  top: -2px;
+  width: 40px;
+  height: 21px;
+  border-radius: 5px;  
+  background-color: #fff;
+  -webkit-box-shadow: 3px 4px 15px 0px rgb(73, 76, 74);
+  -moz-box-shadow: 3px 4px 15px 0px rgb(73, 76, 74);
+  box-shadow: 3px 4px 15px 0px rgb(73, 76, 74);   
+}   
+
+.left {
+  left: -1px;
+}
+
+.border-color {
+  border-color: rgba(30,140,190,.8);
+}
+
+.display-format-color {
+  color: #333;
+}
+
+.display-format-color-selected {
+  color: rgba(30,140,190,.8);
+}
+
+#embed-selected div:first-child{
+  margin-left: 0;      
+}
+
+#embed-selected div:last-child{
+  margin-left: 0;      
+}
+
+#alert-message {
+  text-align: center;
+  color: #c74d4d;
+  font-weight: 900;
+}
