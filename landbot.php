@@ -35,8 +35,6 @@ class Landbot {
     add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
     // Shortcode
     add_shortcode('landbot', array($this, 'shortCode'));
-    // Disable plugin
-    register_deactivation_hook( __FILE__, array($this, 'removeDataBaseWhenDisablePlugin'));
   }
 
   /******* GLOBAL VALUES AND OTHERS ********/
@@ -158,13 +156,6 @@ class Landbot {
   }
 
   /******* DATA BASE QUERYS ********/
-
-  function removeDataBaseWhenDisablePlugin() {
-    $table_name = $this->getTableName();
-    $sql = "DROP TABLE IF EXISTS $table_name";
-    $this->getWpdb()->query($sql);
-    delete_option("my_plugin_db_version");
-  }
 
   /**
   *
