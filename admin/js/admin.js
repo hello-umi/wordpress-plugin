@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorHandler(response);   
       })
     } else {
-      showAlertMessage('Token is mandatory field.', '#c74d4d');
+      showAlertMessage('URL is mandatory field.', '#c74d4d');
     }
 
   })
@@ -95,9 +95,9 @@ function showWidgetHeight(option) {
 
 function setInitialConfiguration() {
 
-  if(landbot_constants.token) {
+  if(landbot_constants.url) {
     var tokenElement = document.getElementById('authorization');
-    tokenElement.value = landbot_constants.token;
+    tokenElement.value = landbot_constants.url;
   }
 
   if(landbot_constants.displayFormat) {

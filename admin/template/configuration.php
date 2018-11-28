@@ -6,17 +6,17 @@
                     
         <div class="content-section">
         <div>
-            <label>1. Copy and paste your landbot token here*</label>
+            <label>1. Copy and paste your landbot URL here*</label>
             <label>*You can find it under your Landbot > Share section</label>
         </div>
         <div class="authorization">
-            <div> TOKEN: </div>
+            <div> URL: </div>
             <div>
             <input
                 class="regular-text" 
                 name="authorization"
                 id="authorization"
-                placeholder="Token 7beqb8161dcbw715018i1f26axa8901b94az563b"
+                placeholder="https://landbot.io/u/H-107043-EUS4TOL95LM/index.html"
                 type="text"
             />
             </div>

@@ -76,13 +76,12 @@ class Landbot {
 	  $admin_options = array(
 	    'ajax_url'      => admin_url( 'admin-ajax.php' ),
       '_nonce'        => wp_create_nonce( $this->_nonce ),
-      'token'         => get_object_vars($data)['token'],
+      'url'         => get_object_vars($data)['url'],
       'displayFormat' => get_object_vars($data)['displayFormat'],
       'hideBackground'=> get_object_vars($data)['hideBackground'],
       'hideHeader'    => get_object_vars($data)['hideHeader'],
       'widgetHeight'  => get_object_vars($data)['widgetHeight'],
-      'shortCode'     => $shortCode,
-      'shorcodeExist' => $shortCodeExist
+      'shortCode'     => $shortCode
 	  );
 
 	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
@@ -117,7 +116,7 @@ class Landbot {
 
     $table_name = $this->getTableName();
         
-    $token = $_POST['authorization'];
+    $url = $_POST['authorization'];
     $displayFormat = strtolower($_POST['displayFormat']);
     $hideBackground = ($_POST['hideBackground'] === 'true');
     $hideHeader = ($_POST['hideHeader'] === 'true');
@@ -125,9 +124,9 @@ class Landbot {
 
     if($this -> checkExistTableInDB($table_name)) {
       $this -> createTable($table_name);
-      $this -> insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+      $this -> insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
     } else {
-      $this -> updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+      $this -> updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
     }
 
     $data = $this->getDataConfigurationFromDB()[0];
@@ -145,14 +144,14 @@ class Landbot {
    */
   private function shortCode($data) {
     $shortCode = shortcode_atts( array(
-	    'url'         => 'https://api.landbot.io/',
-      'displayFormat' => get_object_vars($data)['displayFormat'],
-      'hideBackground'=> (get_object_vars($data)['hideBackground'] === '1'),
-      'hideHeader'    => (get_object_vars($data)['hideHeader'] === '1'),
-      'widgetHeight'  => get_object_vars($data)['widgetHeight'],
+	    'url'         => get_object_vars($data)['url'],
+      'format' => get_object_vars($data)['displayFormat'],
+      'hide_background'=> get_object_vars($data)['hideBackground'] === '1' ? 'true' : 'false',
+      'hide_header'    => get_object_vars($data)['hideHeader'] === '1' ? 'true' : 'false',
+      'widget_height'  => get_object_vars($data)['widgetHeight'] === '0' ? null : get_object_vars($data)['widgetHeight']
  	  ), $atts );
 
-	  return $shortCode;  
+	  return '[landbot url="'.$shortCode['url'].'" format="'.$shortCode['format'].'" hide_background="'.$shortCode['hide_background'].'" hide_header="'.$shortCode['hide_header'].'" widget_height="' . $shortCode['widget_height'] . '"]';  
   }
 
   /******* DATA BASE QUERYS ********/
@@ -175,7 +174,7 @@ class Landbot {
   private function getDataConfigurationFromDB() {
     $table_name = $this->getTableName();
     if(!$this -> checkExistTableInDB($table_name)) {
-      $data = $this->getWpdb()->get_results("SELECT token, displayFormat, hideBackground, hideHeader, widgetHeight 
+      $data = $this->getWpdb()->get_results("SELECT url, displayFormat, hideBackground, hideHeader, widgetHeight 
                                               FROM $table_name WHERE id=1", OBJECT);
       return $data;
     }    
@@ -192,7 +191,7 @@ class Landbot {
 
     $sql = "CREATE TABLE $table_name (
       id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      token text,
+      url tinytext,
       displayFormat text,
       hideBackground boolean,
       hideHeader boolean,
@@ -208,7 +207,7 @@ class Landbot {
 
   /**
    *
-   * @param $token string
+   * @param $url string
    * @param $displayFormat string
    * @param $hideBackground boolean
    * @param $hideHeader boolean
@@ -217,12 +216,12 @@ class Landbot {
    * 
    * @return void
    */
-  private function insertData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
+  private function insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
         
     $this->getWpdb()->insert( 
       $table_name, 
       array( 
-        'token' => $token,
+        'url' => $url,
         'displayFormat' => $displayFormat,
         'hideBackground' =>  $hideBackground,
         'hideHeader' => $hideHeader,
@@ -234,7 +233,7 @@ class Landbot {
 
   /**
    *
-   * @param $token string
+   * @param $url string
    * @param $displayFormat string
    * @param $hideBackground boolean
    * @param $hideHeader boolean
@@ -243,12 +242,12 @@ class Landbot {
    * 
    * @return void
    */
-  private function updateData($token, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
+  private function updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
         
     $this->getWpdb()->update( 
       $table_name, 
       array( 
-        'token' => $token,
+        'url' => $url,
         'displayFormat' => $displayFormat,
         'hideBackground' =>  $hideBackground,
         'hideHeader' => $hideHeader,
