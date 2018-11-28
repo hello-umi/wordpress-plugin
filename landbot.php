@@ -212,7 +212,7 @@ class Landbot {
   * Adds Admin Scripts for the Ajax call
   */
   public function addAdminScripts() {
-	wp_enqueue_style('landbot-admin', LANDBOT_URL. 'admin/css/admin.css', false, 1.0);
+	  wp_enqueue_style('landbot-admin', LANDBOT_URL. 'admin/css/admin.css', false, 1.0);
     wp_enqueue_script('landbot-admin', LANDBOT_URL. 'admin/js/admin.js', array(), 1.1);
 
     wp_enqueue_script('polyfill', LANDBOT_URL. 'admin/js/polyfill.js', '', 1.1, true);
@@ -224,14 +224,8 @@ class Landbot {
 
     $shortCode = $this->shortCode($data);
 
-    if ( shortcode_exists( 'landbot' ) ) {
-       $shortCodeExist = 'Yes';
-    } else {
-        $shortCodeExist = 'No';
-    }
-
-	$admin_options = array(
-	  'ajax_url'      => admin_url( 'admin-ajax.php' ),
+	  $admin_options = array(
+	    'ajax_url'      => admin_url( 'admin-ajax.php' ),
       '_nonce'        => wp_create_nonce( $this->_nonce ),
       'token'         => get_object_vars($data)['token'],
       'displayFormat' => get_object_vars($data)['displayFormat'],
@@ -240,9 +234,9 @@ class Landbot {
       'widgetHeight'  => get_object_vars($data)['widgetHeight'],
       'shortCode'     => $shortCode,
       'shorcodeExist' => $shortCodeExist
-	);
+	  );
 
-	wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
+	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
 
   }
 
@@ -256,9 +250,9 @@ class Landbot {
       'hideBackground'=> (get_object_vars($data)['hideBackground'] === '1'),
       'hideHeader'    => (get_object_vars($data)['hideHeader'] === '1'),
       'widgetHeight'  => get_object_vars($data)['widgetHeight'],
-	), $atts );
+ 	  ), $atts );
 
-	return $shortCode;  
+	  return $shortCode;  
   }
 
   /**
@@ -266,13 +260,13 @@ class Landbot {
   */
   public function addAdminMenu() {
     add_menu_page(
-	  __( 'Landbot', 'landbot' ),
-	  __( 'Landbot', 'landbot' ),
-	  'manage_options',
-	  'landbot',
-	  array($this, 'adminLayout'),
-	  'dashicons-testimonial'
-	);
+	    __( 'Landbot', 'landbot' ),
+	    __( 'Landbot', 'landbot' ),
+	    'manage_options',
+	    'landbot',
+	    array($this, 'adminLayout'),
+	    'dashicons-testimonial'
+	  );
   }
 
   /**
@@ -292,11 +286,11 @@ class Landbot {
         'headers' => array( 'Authorization' => $private_key) 
       ));
 
-	if (is_array($response) && !is_wp_error($response)) {
-		$data = json_decode($response['body'], true);
-	}
+	  if (is_array($response) && !is_wp_error($response)) {
+		  $data = json_decode($response['body'], true);
+	  }
 
-	return $data;
+	  return $data;
 
   }
 
