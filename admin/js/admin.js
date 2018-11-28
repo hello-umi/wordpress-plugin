@@ -7,41 +7,43 @@ var displayFormat = 'POPUP';
 
 document.addEventListener('DOMContentLoaded', function() {
 
-  setInitialConfiguration();
+  var elementQuerySelector = document.querySelector('#landbot-admin-form');
 
-  console.log(landbot_constants)
+  if(elementQuerySelector) {
+
+    elementQuerySelector.addEventListener('submit', function (e){
+
+      e.preventDefault();
+  
+      var formData = new FormData();
+  
+      formData.append('authorization', document.getElementById('authorization').value);
+      formData.append('hideBackground', moreOptionsCheck.hideBackground);
+      formData.append('hideHeader', moreOptionsCheck.hideHeader);
+      formData.append('displayFormat', displayFormat);
+  
+      if(displayFormat === 'EMBED') {
+        var widgetHeight = document.getElementById('widget-height').value !== '' 
+                           && !isNaN(document.getElementById('widget-height').value) 
+                           && parseInt(document.getElementById('widget-height').value) > 0 ? document.getElementById('widget-height').value : 500; 
+        formData.append('widgetHeight', widgetHeight);
+      }
+  
+      formData.append('action', 'store_admin_data');
+      formData.append('security', landbot_constants._nonce);
+      
+      if(document.getElementById('authorization').value !== '') {
+        getData('POST', landbot_constants.ajax_url, formData).then(function (response) {
+          errorHandler(response);   
+        })
+      } else {
+        showAlertMessage('URL is mandatory field.', '#c74d4d');
+      }
+  
+    })
+
+  }
     
-  document.querySelector('#landbot-admin-form').addEventListener('submit', function (e){
-
-    e.preventDefault();
-
-    var formData = new FormData();
-
-    formData.append('authorization', document.getElementById('authorization').value);
-    formData.append('hideBackground', moreOptionsCheck.hideBackground);
-    formData.append('hideHeader', moreOptionsCheck.hideHeader);
-    formData.append('displayFormat', displayFormat);
-
-    if(displayFormat === 'EMBED') {
-      var widgetHeight = document.getElementById('widget-height').value !== '' 
-                         && !isNaN(document.getElementById('widget-height').value) 
-                         && parseInt(document.getElementById('widget-height').value) > 0 ? document.getElementById('widget-height').value : 500; 
-      formData.append('widgetHeight', widgetHeight);
-    }
-
-    formData.append('action', 'store_admin_data');
-    formData.append('security', landbot_constants._nonce);
-    
-    if(document.getElementById('authorization').value !== '') {
-      getData('POST', landbot_constants.ajax_url, formData).then(function (response) {
-        errorHandler(response);   
-      })
-    } else {
-      showAlertMessage('URL is mandatory field.', '#c74d4d');
-    }
-
-  })
-
 }, false);
 
 function checkMoreOptions (element, option) {
@@ -96,8 +98,8 @@ function showWidgetHeight(option) {
 function setInitialConfiguration() {
 
   if(landbot_constants.url) {
-    var tokenElement = document.getElementById('authorization');
-    tokenElement.value = landbot_constants.url;
+    var urlElement = document.getElementById('authorization');
+    urlElement.value = landbot_constants.url;
   }
 
   if(landbot_constants.displayFormat) {
