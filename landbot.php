@@ -38,6 +38,8 @@ class Landbot {
     // Disable plugin
     register_deactivation_hook( __FILE__, array($this, 'removeDataBaseWhenDisablePlugin'));
   }
+
+  /******* GLOBAL VALUES AND OTHERS ********/
     
   private function getWpdb() {
     global $wpdb;
@@ -55,11 +57,52 @@ class Landbot {
     return $this->getWpdb()->prefix . 'landbot';  
   }
 
-  function removeDataBaseWhenDisablePlugin() {
-    $table_name = $this->getTableName();
-    $sql = "DROP TABLE IF EXISTS $table_name";
-    $this->getWpdb()->query($sql);
-    delete_option("my_plugin_db_version");
+  /******* INITIAL CONFIG ********/
+
+   /**
+  * Adds Admin Scripts for the Ajax call
+  */
+  public function addAdminScripts() {
+	  wp_enqueue_style('landbot-admin', LANDBOT_URL. 'admin/css/admin.css', false, 1.0);
+    wp_enqueue_script('landbot-admin', LANDBOT_URL. 'admin/js/admin.js', array(), 1.1);
+
+    wp_enqueue_script('polyfill', LANDBOT_URL. 'admin/js/polyfill.js', '', 1.1, true);
+    wp_enqueue_script('service', LANDBOT_URL. 'admin/js/service.js', '', 1.1, true);
+    wp_enqueue_script('errorHandler', LANDBOT_URL. 'admin/js/errorHandler.js', '', 1.1, true);
+    wp_enqueue_script('utils', LANDBOT_URL. 'admin/js/utils.js', '', 1.1, true);
+    
+    $data = $this->getDataConfigurationFromDB()[0];
+
+    $shortCode = $this->shortCode($data);
+
+	  $admin_options = array(
+	    'ajax_url'      => admin_url( 'admin-ajax.php' ),
+      '_nonce'        => wp_create_nonce( $this->_nonce ),
+      'token'         => get_object_vars($data)['token'],
+      'displayFormat' => get_object_vars($data)['displayFormat'],
+      'hideBackground'=> get_object_vars($data)['hideBackground'],
+      'hideHeader'    => get_object_vars($data)['hideHeader'],
+      'widgetHeight'  => get_object_vars($data)['widgetHeight'],
+      'shortCode'     => $shortCode,
+      'shorcodeExist' => $shortCodeExist
+	  );
+
+	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
+
+  }
+
+  /**
+  * Adds the Landbot label to the WordPress Admin Sidebar Menu
+  */
+  public function addAdminMenu() {
+    add_menu_page(
+	    __( 'Landbot', 'landbot' ),
+	    __( 'Landbot', 'landbot' ),
+	    'manage_options',
+	    'landbot',
+	    array($this, 'adminLayout'),
+	    'dashicons-testimonial'
+	  );
   }
 
   /**
@@ -97,8 +140,33 @@ class Landbot {
 
   }
 
+  /******* UTILS ********/
+
   /**
-  * create table in mysql
+   * Generate short code
+   */
+  private function shortCode($data) {
+    $shortCode = shortcode_atts( array(
+	    'url'         => 'https://api.landbot.io/',
+      'displayFormat' => get_object_vars($data)['displayFormat'],
+      'hideBackground'=> (get_object_vars($data)['hideBackground'] === '1'),
+      'hideHeader'    => (get_object_vars($data)['hideHeader'] === '1'),
+      'widgetHeight'  => get_object_vars($data)['widgetHeight'],
+ 	  ), $atts );
+
+	  return $shortCode;  
+  }
+
+  /******* DATA BASE QUERYS ********/
+
+  function removeDataBaseWhenDisablePlugin() {
+    $table_name = $this->getTableName();
+    $sql = "DROP TABLE IF EXISTS $table_name";
+    $this->getWpdb()->query($sql);
+    delete_option("my_plugin_db_version");
+  }
+
+  /**
   *
   * @param $table_name string
   * 
@@ -108,6 +176,11 @@ class Landbot {
     return $this->getWpdb()->get_var("SHOW TABLES LIKE '$table_name'") != $table_name;
   }
 
+  /**
+  * Get data saved in db
+  * 
+  * @return array elements config
+  */
   private function getDataConfigurationFromDB() {
     $table_name = $this->getTableName();
     if(!$this -> checkExistTableInDB($table_name)) {
@@ -196,66 +269,7 @@ class Landbot {
     );
   }
 
-  /**
-  * Adds Admin Scripts for the Ajax call
-  */
-  public function addAdminScripts() {
-	  wp_enqueue_style('landbot-admin', LANDBOT_URL. 'admin/css/admin.css', false, 1.0);
-    wp_enqueue_script('landbot-admin', LANDBOT_URL. 'admin/js/admin.js', array(), 1.1);
-
-    wp_enqueue_script('polyfill', LANDBOT_URL. 'admin/js/polyfill.js', '', 1.1, true);
-    wp_enqueue_script('service', LANDBOT_URL. 'admin/js/service.js', '', 1.1, true);
-    wp_enqueue_script('errorHandler', LANDBOT_URL. 'admin/js/errorHandler.js', '', 1.1, true);
-    wp_enqueue_script('utils', LANDBOT_URL. 'admin/js/utils.js', '', 1.1, true);
-    
-    $data = $this->getDataConfigurationFromDB()[0];
-
-    $shortCode = $this->shortCode($data);
-
-	  $admin_options = array(
-	    'ajax_url'      => admin_url( 'admin-ajax.php' ),
-      '_nonce'        => wp_create_nonce( $this->_nonce ),
-      'token'         => get_object_vars($data)['token'],
-      'displayFormat' => get_object_vars($data)['displayFormat'],
-      'hideBackground'=> get_object_vars($data)['hideBackground'],
-      'hideHeader'    => get_object_vars($data)['hideHeader'],
-      'widgetHeight'  => get_object_vars($data)['widgetHeight'],
-      'shortCode'     => $shortCode,
-      'shorcodeExist' => $shortCodeExist
-	  );
-
-	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
-
-  }
-
-  /**
-   * Generate short code
-   */
-  private function shortCode($data) {
-    $shortCode = shortcode_atts( array(
-	  'url'         => 'https://api.landbot.io/',
-      'displayFormat' => get_object_vars($data)['displayFormat'],
-      'hideBackground'=> (get_object_vars($data)['hideBackground'] === '1'),
-      'hideHeader'    => (get_object_vars($data)['hideHeader'] === '1'),
-      'widgetHeight'  => get_object_vars($data)['widgetHeight'],
- 	  ), $atts );
-
-	  return $shortCode;  
-  }
-
-  /**
-  * Adds the Landbot label to the WordPress Admin Sidebar Menu
-  */
-  public function addAdminMenu() {
-    add_menu_page(
-	    __( 'Landbot', 'landbot' ),
-	    __( 'Landbot', 'landbot' ),
-	    'manage_options',
-	    'landbot',
-	    array($this, 'adminLayout'),
-	    'dashicons-testimonial'
-	  );
-  }
+  /******* API CALLS ********/
 
   /**
    * Make an API call to the Landbot API and returns the response
@@ -281,6 +295,8 @@ class Landbot {
 	  return $data;
 
   }
+
+  /******* RENDER TEMPLATE ********/
 
   /**
   * Outputs the Admin Dashboard layout containing the form with all its options
