@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
     formData.append('displayFormat', displayFormat);
 
     if(displayFormat === 'EMBED') {
-      var widgetHeight = document.getElementById('widget-height').value !== '' && !isNaN(document.getElementById('widget-height').value) ? document.getElementById('widget-height').value : 500; 
+      var widgetHeight = document.getElementById('widget-height').value !== '' 
+                         && !isNaN(document.getElementById('widget-height').value) 
+                         && parseInt(document.getElementById('widget-height').value) > 0 ? document.getElementById('widget-height').value : 500; 
       formData.append('widgetHeight', widgetHeight);
     }
 

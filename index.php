@@ -113,7 +113,8 @@ class Landbot {
   public function getDataConfigurationFromDB() {
     $table_name = $this->getTableName();
     if(!$this -> checkExistTableInDB($table_name)) {
-      $data = $this->getWpdb()->get_results("SELECT token, displayFormat, hideBackground, hideHeader, widgetHeight FROM $table_name WHERE id=1", OBJECT);
+      $data = $this->getWpdb()->get_results("SELECT token, displayFormat, hideBackground, hideHeader, widgetHeight 
+                                              FROM $table_name WHERE id=1", OBJECT);
       return $data;
     }    
   }
