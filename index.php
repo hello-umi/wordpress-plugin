@@ -33,7 +33,9 @@ class Landbot {
     add_action('admin_menu',                array($this,'addAdminMenu'));
     add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
     add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
-    // Remove plugin
+    // Shortcode
+    add_shortcode('landbot', array($this, 'shortCode'));
+    // Disable plugin
     register_deactivation_hook( __FILE__, array($this, 'removeDataBaseWhenDisablePlugin'));
   }
     
@@ -110,7 +112,7 @@ class Landbot {
     return $this->getWpdb()->get_var("SHOW TABLES LIKE '$table_name'") != $table_name;
   }
 
-  public function getDataConfigurationFromDB() {
+  private function getDataConfigurationFromDB() {
     $table_name = $this->getTableName();
     if(!$this -> checkExistTableInDB($table_name)) {
       $data = $this->getWpdb()->get_results("SELECT token, displayFormat, hideBackground, hideHeader, widgetHeight 
@@ -220,6 +222,14 @@ class Landbot {
     
     $data = $this->getDataConfigurationFromDB()[0];
 
+    $shortCode = $this->shortCode($data);
+
+    if ( shortcode_exists( 'landbot' ) ) {
+       $shortCodeExist = 'Yes';
+    } else {
+        $shortCodeExist = 'No';
+    }
+
 	$admin_options = array(
 	  'ajax_url'      => admin_url( 'admin-ajax.php' ),
       '_nonce'        => wp_create_nonce( $this->_nonce ),
@@ -228,10 +238,27 @@ class Landbot {
       'hideBackground'=> get_object_vars($data)['hideBackground'],
       'hideHeader'    => get_object_vars($data)['hideHeader'],
       'widgetHeight'  => get_object_vars($data)['widgetHeight'],
+      'shortCode'     => $shortCode,
+      'shorcodeExist' => $shortCodeExist
 	);
 
 	wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
 
+  }
+
+  /**
+   * Generate short code
+   */
+  private function shortCode($data) {
+    $shortCode = shortcode_atts( array(
+	  'url'         => 'https://api.landbot.io/',
+      'displayFormat' => get_object_vars($data)['displayFormat'],
+      'hideBackground'=> (get_object_vars($data)['hideBackground'] === '1'),
+      'hideHeader'    => (get_object_vars($data)['hideHeader'] === '1'),
+      'widgetHeight'  => get_object_vars($data)['widgetHeight'],
+	), $atts );
+
+	return $shortCode;  
   }
 
   /**
@@ -279,110 +306,8 @@ class Landbot {
   * @return void
   */
   public function adminLayout() {
-
-
-  ?>
-
-    <div class="wrap">
-      <form id="landbot-admin-form" class="postbox">
-        <div class="form-group inside">
-          <h1>Add Landbot</h1>
-          <p>You can <a href="https://landbot.io" target="_blank">create an account here.</a></p>
-                      
-	      <div class="content-section">
-            <div>
-              <label>1. Copy and paste your landbot token here*</label>
-              <label>*You can find it under your Landbot > Share section</label>
-            </div>
-            <div class="authorization">
-              <div> TOKEN: </div>
-              <div>
-                <input
-                  class="regular-text" 
-                  name="authorization"
-                  id="authorization"
-                  placeholder="Token 7beqb8161dcbw715018i1f26axa8901b94az563b"
-                  type="text"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="content-section">
-            <div>
-              <label>2. Display Format</label>
-              <label>*The way Landbot is displayed</label>
-            </div>
-            <div>
-              <div onclick="checkDisplayFormat('FULLPAGE')" class="square-display-format display-format-color">
-                <div>
-                  <img src="<?php echo plugin_dir_url( __FILE__ ) . '/assets/img/full.png'; ?>" alt="fullpage"/>
-                </div>
-                <div> FULLPAGE </div>  
-              </div>
-              <div onclick="checkDisplayFormat('POPUP')" class="square-display-format display-format-color">
-                <div>
-                  <img src="<?php echo plugin_dir_url( __FILE__ ) . '/assets/img/popup.png'; ?>" alt="popup"/>
-                </div>
-                <div> POPUP </div>
-              </div>
-              <div onclick="checkDisplayFormat('EMBED')" class="square-display-format display-format-color">
-                <div>
-                  <img src="<?php echo plugin_dir_url( __FILE__ ) . '/assets/img/embed.png'; ?>" alt="embed"/>
-                </div>
-                <div> EMBED </div>
-              </div>
-              <div onclick="checkDisplayFormat('LIVE CHAT')" class="square-display-format display-format-color">
-                <div>
-                  <img src="<?php echo plugin_dir_url( __FILE__ ) . '/assets/img/LIVECHAT.png'; ?>" alt="LIVE CHAT"/>
-                </div>
-                <div> LIVE CHAT </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="content-section">
-            <div>
-                <label>3. More Options</label>
-            </div>
-            <div class="more-options">
-              <div>
-                <div class="option-check">
-                  <div>
-                    Hide background
-                  </div>
-                  <div class="check-button" >
-                    <div id="hideBackground" onclick="checkMoreOptions(this, 'hideBackground')" class="square-click left"></div>
-                  </div>
-                </div>
-                <div class="option-check">
-                  <div>
-                    Hide header
-                  </div>
-                  <div class="check-button" >
-                    <div id="hideHeader" onclick="checkMoreOptions(this, 'hideHeader')" class="square-click left"></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div id="embed-selected"></div>
-            
-            </div>
-          </div>
-          
-            <div id="alert-message"></div>
-          
-          </div>
-          <div class="inside footer">
-            <button class="button button-primary" id="landbot-admin-save" type="submit">
-              Ok
-            </button>
-          </div>
-      </form>
-    </div>
-
-  <?php
-
+    $configurationTemplate = plugin_dir_path( __FILE__ ) . 'template/configuration.php';
+    include_once $configurationTemplate;
   }
 }
 
