@@ -7,35 +7,7 @@ var displayFormat = 'POPUP';
 
 document.addEventListener('DOMContentLoaded', function() {
 
-  if(landbot_constants.token) {
-    var tokenElement = document.getElementById('authorization');
-    tokenElement.value = landbot_constants.token;
-  }
-
-  if(landbot_constants.displayFormat) {
-    displayFormat = landbot_constants.displayFormat.toUpperCase();
-    showWidgetHeight(displayFormat);
-  }
-
-  if(landbot_constants.displayFormat === 'embed' && landbot_constants.widgetHeight) {
-    var widgetElement = document.getElementById('widget-height');
-    if(widgetElement) widgetElement.value = landbot_constants.widgetHeight;
-  }
-
-  if(parseInt(landbot_constants.hideBackground)) {
-    var hideBackgroundElement = document.getElementById('hideBackground');
-    checkMoreOptions(hideBackgroundElement, 'hideBackground');
-  }
-
-  if(parseInt(landbot_constants.hideHeader)) {
-    var hideHeaderElement = document.getElementById('hideHeader');
-    checkMoreOptions(hideHeaderElement, 'hideHeader')
-  }
-
-  console.log(landbot_constants)
-
-
-  addClassDisplayFormat(displayFormat);
+  setInitialConfiguration();
     
   document.querySelector('#landbot-admin-form').addEventListener('submit', function (e){
 
@@ -58,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if(document.getElementById('authorization').value !== '') {
       getData('POST', landbot_constants.ajax_url, formData).then(function (response) {
-        console.log(response)
         errorHandler(response);   
       })
     } else {
@@ -116,4 +87,34 @@ function showWidgetHeight(option) {
     var element = document.getElementById('embed-selected');
     element.innerHTML = '';
   }
+}
+
+function setInitialConfiguration() {
+
+  if(landbot_constants.token) {
+    var tokenElement = document.getElementById('authorization');
+    tokenElement.value = landbot_constants.token;
+  }
+
+  if(landbot_constants.displayFormat) {
+    displayFormat = landbot_constants.displayFormat.toUpperCase();
+    showWidgetHeight(displayFormat);
+  }
+
+  if(landbot_constants.displayFormat === 'embed' && landbot_constants.widgetHeight) {
+    var widgetElement = document.getElementById('widget-height');
+    if(widgetElement) widgetElement.value = landbot_constants.widgetHeight;
+  }
+
+  if(parseInt(landbot_constants.hideBackground)) {
+    var hideBackgroundElement = document.getElementById('hideBackground');
+    checkMoreOptions(hideBackgroundElement, 'hideBackground');
+  }
+
+  if(parseInt(landbot_constants.hideHeader)) {
+    var hideHeaderElement = document.getElementById('hideHeader');
+    checkMoreOptions(hideHeaderElement, 'hideHeader');
+  }
+
+  addClassDisplayFormat(displayFormat);
 }

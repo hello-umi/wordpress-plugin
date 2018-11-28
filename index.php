@@ -218,7 +218,6 @@ class Landbot {
     wp_enqueue_script('utils', LANDBOT_URL. 'assets/js/utils.js', '', 1.1, true);
     
     $data = $this->getDataConfigurationFromDB()[0];
-    $prueba = get_object_vars($data)['token'];
 
 	$admin_options = array(
 	  'ajax_url'      => admin_url( 'admin-ajax.php' ),
@@ -227,7 +226,7 @@ class Landbot {
       'displayFormat' => get_object_vars($data)['displayFormat'],
       'hideBackground'=> get_object_vars($data)['hideBackground'],
       'hideHeader'    => get_object_vars($data)['hideHeader'],
-      'widgetHeight'  => get_object_vars($data)['widgetHeight']
+      'widgetHeight'  => get_object_vars($data)['widgetHeight'],
 	);
 
 	wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
