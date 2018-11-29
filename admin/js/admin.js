@@ -11,7 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if(elementQuerySelector) {
 
-    elementQuerySelector.addEventListener('submit', function (e){
+    setInitialConfiguration();
+
+    document.querySelector('#landbot-admin-form').addEventListener('submit', function (e){
 
       e.preventDefault();
   
@@ -23,10 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
       formData.append('displayFormat', displayFormat);
   
       if(displayFormat === 'EMBED') {
-        var widgetHeight = document.getElementById('widget-height').value !== '' 
-                           && !isNaN(document.getElementById('widget-height').value) 
-                           && parseInt(document.getElementById('widget-height').value) > 0 ? document.getElementById('widget-height').value : 500; 
-        formData.append('widgetHeight', widgetHeight);
+        formData.append('widgetHeight', checkMoreoptionsCorrectValue('widget-height'));
+        formData.append('positionTop', checkMoreoptionsCorrectValue('position-top'));
       }
   
       formData.append('action', 'store_admin_data');
@@ -81,8 +81,9 @@ function removeClassDisplayFormat() {
   
 function widgetHeightElement() {
   var widgetHeight = '<div>Widget height (pixels)</div><div><input name="widget-height" id="widget-height" class="regular-text" placeholder="Default value 500 pixels" type="text" /></div>';
+  var postionRespectTop = '<div>Widget position respect top page (pixels)</div><div><input name="position-top" id="position-top" class="regular-text" placeholder="Default value 500 pixels" type="text" /></div>';
   
-  return widgetHeight;
+  return widgetHeight + postionRespectTop;
 }
   
 function showWidgetHeight(option) {
@@ -109,7 +110,9 @@ function setInitialConfiguration() {
 
   if(landbot_constants.displayFormat === 'embed' && landbot_constants.widgetHeight) {
     var widgetElement = document.getElementById('widget-height');
+    var positionTop = document.getElementById('position-top');
     if(widgetElement) widgetElement.value = landbot_constants.widgetHeight;
+    if(positionTop) positionTop.value = landbot_constants.positionTop;
   }
 
   if(parseInt(landbot_constants.hideBackground)) {
@@ -123,4 +126,10 @@ function setInitialConfiguration() {
   }
 
   addClassDisplayFormat(displayFormat);
+}
+
+function checkMoreoptionsCorrectValue(elementName) {
+  return document.getElementById(elementName).value !== '' 
+         && !isNaN(document.getElementById(elementName).value) 
+         && parseInt(document.getElementById(elementName).value) > 0 ? document.getElementById(elementName).value : 500;
 }

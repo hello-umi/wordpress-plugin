@@ -187,3 +187,8 @@
   color: #c74d4d;
   font-weight: 900;
 }
+
+.more-options div {
+  margin-left: 0 !important;
+  margin-bottom: 30px;
+}

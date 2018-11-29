@@ -26,15 +26,58 @@ if(!defined('LANDBOT_PROTOCOL'))
 class Landbot {
 
   private $_nonce = 'landbot_admin';
-  private $option_name = 'landbot_data';
+  private $_script= 'https://static.landbot.io/landbot-widget/landbot-widget-1.0.0.js';
 
   public function __construct() {
-    // Admin page calls
-    add_action('admin_menu',                array($this,'addAdminMenu'));
-    add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
-    add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
-    // Shortcode
-    add_shortcode('landbot', array($this, 'shortCode'));
+
+    if(is_admin()){
+      // Admin page calls
+      add_action('admin_menu',                array($this,'addAdminMenu'));
+      add_action('wp_ajax_store_admin_data',  array($this,'storeAdminData'));
+      add_action('admin_enqueue_scripts',     array($this,'addAdminScripts'));
+      // Shortcode
+      add_shortcode('landbot', array($this, 'shortCode'));
+    } else {
+      add_action('wp_footer', array($this, 'printFooterScript'), 30);
+    }
+  }
+
+  private function liveChat($landbotScript, $data, $params) {
+    return "<script src=" . $landbotScript . "></script>
+              <script>
+                var myLandbotLivechat = new LandbotLivechat({
+                  index: '". get_object_vars($data)['url'] ."". $params ."',
+                });
+              </script>";
+  }
+
+  private function embed($landbotScript, $data, $params) {
+    return "<script src=" . $landbotScript . "></script> 
+            <div id='landbot-1543425349304' style='width: 100%; height: ".get_object_vars($data)['widgetHeight']."px; position: absolute; top: ".get_object_vars($data)['positionTop']."px;'></div>
+            <script>
+              var myLandbotFrame = new LandbotFrameWidget({
+                container: '#landbot-1543425349304',
+                index: '". get_object_vars($data)['url'] ."". $params ."',
+              });
+            </script>";
+  }
+
+  private function popup($landbotScript, $data, $params) {
+    return "<script src=" . $landbotScript . "></script>
+            <script>
+              var myLandbotPopup = new LandbotPopup({
+                index: '". get_object_vars($data)['url'] ."". $params ."',
+              });
+            </script>";
+  }
+
+  private function fullPage($landbotScript, $data, $params) {
+    return  "<script src=" . $landbotScript . "></script>
+              <script>
+                var myLandbotFullpage = new LandbotFullpage({
+                  index: '". get_object_vars($data)['url'] ."". $params ."',
+                });
+              </script>";
   }
 
   /******* GLOBAL VALUES AND OTHERS ********/
@@ -76,11 +119,12 @@ class Landbot {
 	  $admin_options = array(
 	    'ajax_url'      => admin_url( 'admin-ajax.php' ),
       '_nonce'        => wp_create_nonce( $this->_nonce ),
-      'url'         => get_object_vars($data)['url'],
+      'url'           => get_object_vars($data)['url'],
       'displayFormat' => get_object_vars($data)['displayFormat'],
       'hideBackground'=> get_object_vars($data)['hideBackground'],
       'hideHeader'    => get_object_vars($data)['hideHeader'],
       'widgetHeight'  => get_object_vars($data)['widgetHeight'],
+      'positionTop'   => get_object_vars($data)['positionTop'],
       'shortCode'     => $shortCode
 	  );
 
@@ -102,6 +146,34 @@ class Landbot {
 	  );
   }
 
+  /****** SHOW LANDBOT IN WORDPRESSPAGE *****/
+
+  public function printFooterScript() {
+
+    $data = $this->getDataConfigurationFromDB()[0];
+
+    $landbotScript = 'https://static.landbot.io/landbot-widget/landbot-widget-1.0.0.js';
+
+    $params = '?widget_hide_background='.get_object_vars($data)['hideBackground'].'&widget_hide_header='.get_object_vars($data)['hideHeader'].'';
+
+    switch(get_object_vars($data)['displayFormat']) {
+      case 'live chat':
+        echo $this->liveChat($landbotScript, $data, $params);
+        break;
+      case 'popup':
+        echo $this->popup($landbotScript, $data, $params);
+        break;
+      case 'embed':
+        echo $this->embed($landbotScript, $data, $params);
+        break;
+      case 'fullpage':
+        echo $this->fullPage($landbotScript, $data, $params);
+        break;
+      default:
+        echo '';
+    }
+  }
+
   /**
    * Callback for the Ajax request
    *
@@ -121,12 +193,13 @@ class Landbot {
     $hideBackground = ($_POST['hideBackground'] === 'true');
     $hideHeader = ($_POST['hideHeader'] === 'true');
     $widgetHeight = intval($_POST['widgetHeight']);
+    $positionTop = intval($_POST['positionTop']);
 
     if($this -> checkExistTableInDB($table_name)) {
       $this -> createTable($table_name);
-      $this -> insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+      $this -> insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name);
     } else {
-      $this -> updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name);
+      $this -> updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name);
     }
 
     $data = $this->getDataConfigurationFromDB()[0];
@@ -174,7 +247,7 @@ class Landbot {
   private function getDataConfigurationFromDB() {
     $table_name = $this->getTableName();
     if(!$this -> checkExistTableInDB($table_name)) {
-      $data = $this->getWpdb()->get_results("SELECT url, displayFormat, hideBackground, hideHeader, widgetHeight 
+      $data = $this->getWpdb()->get_results("SELECT url, displayFormat, hideBackground, hideHeader, widgetHeight, positionTop
                                               FROM $table_name WHERE id=1", OBJECT);
       return $data;
     }    
@@ -195,7 +268,8 @@ class Landbot {
       displayFormat text,
       hideBackground boolean,
       hideHeader boolean,
-      widgetHeight int
+      widgetHeight int,
+      positionTop int
     ) $charset_collate;";
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -216,7 +290,7 @@ class Landbot {
    * 
    * @return void
    */
-  private function insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
+  private function insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name) {
         
     $this->getWpdb()->insert( 
       $table_name, 
@@ -225,7 +299,8 @@ class Landbot {
         'displayFormat' => $displayFormat,
         'hideBackground' =>  $hideBackground,
         'hideHeader' => $hideHeader,
-        'widgetHeight' => $widgetHeight 
+        'widgetHeight' => $widgetHeight,
+        'positionTop' => $positionTop
       ) 
     );
   }
@@ -242,7 +317,7 @@ class Landbot {
    * 
    * @return void
    */
-  private function updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $table_name) {
+  private function updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name) {
         
     $this->getWpdb()->update( 
       $table_name, 
@@ -251,7 +326,8 @@ class Landbot {
         'displayFormat' => $displayFormat,
         'hideBackground' =>  $hideBackground,
         'hideHeader' => $hideHeader,
-        'widgetHeight' => $widgetHeight 
+        'widgetHeight' => $widgetHeight,
+        'positionTop' => $positionTop
       ),
       array( 
         'id' => 1
