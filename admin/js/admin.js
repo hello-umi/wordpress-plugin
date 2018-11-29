@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setInitialConfiguration();
 
+    console.log(landbot_constants)
+
     document.querySelector('#landbot-admin-form').addEventListener('submit', function (e){
 
       e.preventDefault();

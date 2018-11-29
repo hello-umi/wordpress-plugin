@@ -8,7 +8,6 @@
  * Text Domain:       landbot
  */
 
-
 /*
  * Plugin constants
  */
@@ -21,12 +20,9 @@ if(!defined('LANDBOT_PATH'))
 if(!defined('LANDBOT_ENDPOINT'))
 	define('LANDBOT_ENDPOINT', 'landbot.io');
 if(!defined('LANDBOT_PROTOCOL'))
-	define('LANDBOT_PROTOCOL', 'https');
+  define('LANDBOT_PROTOCOL', 'https');
 
 class Landbot {
-
-  private $_nonce = 'landbot_admin';
-  private $_script= 'https://static.landbot.io/landbot-widget/landbot-widget-1.0.0.js';
 
   public function __construct() {
 
@@ -40,44 +36,6 @@ class Landbot {
     } else {
       add_action('wp_footer', array($this, 'printFooterScript'), 30);
     }
-  }
-
-  private function liveChat($landbotScript, $data, $params) {
-    return "<script src=" . $landbotScript . "></script>
-              <script>
-                var myLandbotLivechat = new LandbotLivechat({
-                  index: '". get_object_vars($data)['url'] ."". $params ."',
-                });
-              </script>";
-  }
-
-  private function embed($landbotScript, $data, $params) {
-    return "<script src=" . $landbotScript . "></script> 
-            <div id='landbot-1543425349304' style='width: 100%; height: ".get_object_vars($data)['widgetHeight']."px; position: absolute; top: ".get_object_vars($data)['positionTop']."px;'></div>
-            <script>
-              var myLandbotFrame = new LandbotFrameWidget({
-                container: '#landbot-1543425349304',
-                index: '". get_object_vars($data)['url'] ."". $params ."',
-              });
-            </script>";
-  }
-
-  private function popup($landbotScript, $data, $params) {
-    return "<script src=" . $landbotScript . "></script>
-            <script>
-              var myLandbotPopup = new LandbotPopup({
-                index: '". get_object_vars($data)['url'] ."". $params ."',
-              });
-            </script>";
-  }
-
-  private function fullPage($landbotScript, $data, $params) {
-    return  "<script src=" . $landbotScript . "></script>
-              <script>
-                var myLandbotFullpage = new LandbotFullpage({
-                  index: '". get_object_vars($data)['url'] ."". $params ."',
-                });
-              </script>";
   }
 
   /******* GLOBAL VALUES AND OTHERS ********/
@@ -98,6 +56,14 @@ class Landbot {
     return $this->getWpdb()->prefix . 'landbot';  
   }
 
+  private function landbotScript() {
+    return 'https://static.landbot.io/landbot-widget/landbot-widget-1.0.0.js';
+  }
+
+  private function params($data) {
+    return '?widget_hide_background='.get_object_vars($data)['hideBackground'].'&widget_hide_header='.get_object_vars($data)['hideHeader'].'';
+  }
+
   /******* INITIAL CONFIG ********/
 
    /**
@@ -116,6 +82,11 @@ class Landbot {
 
     $shortCode = $this->shortCode($data);
 
+    $embed = require('public/displayFormat/embed.php');
+    $fullpage = require('public/displayFormat/fullpage.php');
+    $liveChat = require('public/displayFormat/liveChat.php');
+    $popup = require('public/displayFormat/popup.php');
+
 	  $admin_options = array(
 	    'ajax_url'      => admin_url( 'admin-ajax.php' ),
       '_nonce'        => wp_create_nonce( $this->_nonce ),
@@ -125,7 +96,11 @@ class Landbot {
       'hideHeader'    => get_object_vars($data)['hideHeader'],
       'widgetHeight'  => get_object_vars($data)['widgetHeight'],
       'positionTop'   => get_object_vars($data)['positionTop'],
-      'shortCode'     => $shortCode
+      'shortCode'     => $shortCode,
+      'popupCode'     => $popup($this->landbotScript(), $data, $this->params($data)),
+      'fullpageCode'  => $fullpage($this->landbotScript(), $data, $this->params($data)),
+      'liveChatCode'  => $liveChat($this->landbotScript(), $data, $this->params($data)),
+      'embedCode'     => $embed($this->landbotScript(), $data, $this->params($data))
 	  );
 
 	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
@@ -152,22 +127,23 @@ class Landbot {
 
     $data = $this->getDataConfigurationFromDB()[0];
 
-    $landbotScript = 'https://static.landbot.io/landbot-widget/landbot-widget-1.0.0.js';
-
-    $params = '?widget_hide_background='.get_object_vars($data)['hideBackground'].'&widget_hide_header='.get_object_vars($data)['hideHeader'].'';
+    $embed = require('public/displayFormat/embed.php');
+    $fullpage = require('public/displayFormat/fullpage.php');
+    $liveChat = require('public/displayFormat/liveChat.php');
+    $popup = require('public/displayFormat/popup.php');
 
     switch(get_object_vars($data)['displayFormat']) {
       case 'live chat':
-        echo $this->liveChat($landbotScript, $data, $params);
+        echo $liveChat($this->landbotScript(), $data, $this->params($data));
         break;
       case 'popup':
-        echo $this->popup($landbotScript, $data, $params);
+        echo $popup($this->landbotScript(), $data, $this->params($data));
         break;
       case 'embed':
-        echo $this->embed($landbotScript, $data, $params);
+        echo $embed($this->landbotScript(), $data, $this->params($data));
         break;
       case 'fullpage':
-        echo $this->fullPage($landbotScript, $data, $params);
+        echo $fullpage($this->landbotScript(), $data, $this->params($data));
         break;
       default:
         echo '';
