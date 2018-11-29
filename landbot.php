@@ -97,10 +97,10 @@ class Landbot {
       'widgetHeight'  => get_object_vars($data)['widgetHeight'],
       'positionTop'   => get_object_vars($data)['positionTop'],
       'shortCode'     => $shortCode,
-      'popupCode'     => $popup($this->landbotScript(), $data, $this->params($data)),
-      'fullpageCode'  => $fullpage($this->landbotScript(), $data, $this->params($data)),
-      'liveChatCode'  => $liveChat($this->landbotScript(), $data, $this->params($data)),
-      'embedCode'     => $embed($this->landbotScript(), $data, $this->params($data))
+      'popup'     => $popup($this->landbotScript(), $data, $this->params($data)),
+      'fullpage'  => $fullpage($this->landbotScript(), $data, $this->params($data)),
+      'livechat'  => $liveChat($this->landbotScript(), $data, $this->params($data)),
+      'embed'     => $embed($this->landbotScript(), $data, $this->params($data))
 	  );
 
 	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);

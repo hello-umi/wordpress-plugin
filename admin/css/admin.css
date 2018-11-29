@@ -3,6 +3,7 @@
 }
 
 .content-section {
+  display: inline-block;
   margin-bottom: 30px;
 }
 
@@ -191,4 +192,16 @@
 .more-options div {
   margin-left: 0 !important;
   margin-bottom: 30px;
+}
+
+#script-code {
+  width: calc(100% - 430px);
+  margin: 0
+}
+
+.script-section {
+  height: 270px;
+  background-color: #4fecec;
+  margin: 0;
+  padding: 20px;
 }

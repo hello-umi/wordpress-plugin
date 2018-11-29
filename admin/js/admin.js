@@ -65,7 +65,10 @@ function addClassDisplayFormat(format) {
     
   elements.forEach(function (element) {
     if(element.innerText.replace(/\n/ig, '') === format) {
+      var code = document.getElementById('code');
+      code.innerText = landbot_constants[format.toLowerCase().replace(/ /g,'')];
       element.classList.toggle('border-color');
+
       element.childNodes.forEach(function (childElement) {
         if(childElement.innerText === format) childElement.classList.toggle('display-format-color-selected');
         })

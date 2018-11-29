@@ -84,6 +84,12 @@
         
         </div>
         </div>
+
+        <div class="content-section" id="script-code">
+            <div id="code" class="script-section">
+            
+            </div>
+        </div>
         
         <div id="alert-message"></div>
         
