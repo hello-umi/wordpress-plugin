@@ -71,7 +71,7 @@ class Landbot {
   */
   public function addAdminScripts() {
 	  wp_enqueue_style('landbot-admin', LANDBOT_URL. 'admin/css/admin.css', false, 1.0);
-    wp_enqueue_script('landbot-admin', LANDBOT_URL. 'admin/js/admin.js', array(), 1.1);
+    wp_enqueue_script('landbot-admin', LANDBOT_URL. 'admin/js/admin.js', false, 1.1);
 
     wp_enqueue_script('polyfill', LANDBOT_URL. 'admin/js/polyfill.js', '', 1.1, true);
     wp_enqueue_script('service', LANDBOT_URL. 'admin/js/service.js', '', 1.1, true);
@@ -80,17 +80,12 @@ class Landbot {
     
     $data = $this->getDataConfigurationFromDB()[0];
 
-    $shortCode = $this->shortCode($data);
+    // $shortCode = $this->shortCode($data);
 
     $embed = require('public/displayFormat/embed.php');
     $fullpage = require('public/displayFormat/fullpage.php');
     $liveChat = require('public/displayFormat/liveChat.php');
     $popup = require('public/displayFormat/popup.php');
-
-    $args = array(
-      'post_type' => 'home_section',
-    );
-    $hp_sections = wp_list_pages();;
 
 	  $admin_options = array(
 	    'ajax_url'      => admin_url( 'admin-ajax.php' ),

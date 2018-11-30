@@ -3,7 +3,6 @@
 }
 
 .content-section {
-  display: inline-block;
   margin-bottom: 30px;
 }
 
@@ -195,8 +194,13 @@
 }
 
 #script-code {
+  display: none;
   width: calc(100% - 430px);
   margin: 0
+}
+
+#list-pages {
+  font-size: 15px;
 }
 
 .script-section {
