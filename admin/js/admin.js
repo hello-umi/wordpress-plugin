@@ -155,7 +155,7 @@ function renderListsPages() {
     return pageElement(page);
   });
 
-  pages.push('<li><input onclick="checkPage(this)" type="checkbox" value="home"/> Home </li>');
+  pages.push('<li><input onclick="checkPage(this)" type="checkbox" value="home"/> Home page </li>');
 
   listPagesElement.innerHTML = pages.join('');
 
