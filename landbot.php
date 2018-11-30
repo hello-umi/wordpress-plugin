@@ -87,6 +87,11 @@ class Landbot {
     $liveChat = require('public/displayFormat/liveChat.php');
     $popup = require('public/displayFormat/popup.php');
 
+    $args = array(
+      'post_type' => 'home_section',
+    );
+    $hp_sections = wp_list_pages();;
+
 	  $admin_options = array(
 	    'ajax_url'      => admin_url( 'admin-ajax.php' ),
       '_nonce'        => wp_create_nonce( $this->_nonce ),
@@ -100,12 +105,42 @@ class Landbot {
       'popup'     => $popup($this->landbotScript(), $data, $this->params($data)),
       'fullpage'  => $fullpage($this->landbotScript(), $data, $this->params($data)),
       'livechat'  => $liveChat($this->landbotScript(), $data, $this->params($data)),
-      'embed'     => $embed($this->landbotScript(), $data, $this->params($data))
+      'embed'     => $embed($this->landbotScript(), $data, $this->params($data)),
+      'pages'     => $this->getPages(),
+      'home'      => $hp_sections
 	  );
 
 	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);
 
   }
+
+  /**
+  * Get pages
+  * 
+  * Return array pages
+  */
+
+  public function getPages() {
+    $args = array(
+      'sort_order' => 'asc',
+      'sort_column' => 'post_title',
+      'hierarchical' => 1,
+      'exclude' => '',
+      'include' => '',
+      'meta_key' => '',
+      'meta_value' => '',
+      'authors' => '',
+      'child_of' => 0,
+      'parent' => -1,
+      'exclude_tree' => '',
+      'number' => '',
+      'offset' => 0,
+      'post_type' => 'page',
+      'post_status' => 'publish'
+    ); 
+    return $pages = get_pages($args);
+  }
+
 
   /**
   * Adds the Landbot label to the WordPress Admin Sidebar Menu
@@ -127,26 +162,30 @@ class Landbot {
 
     $data = $this->getDataConfigurationFromDB()[0];
 
+    $pages = explode(",", get_object_vars($data)['pagesSelected']);
+
     $embed = require('public/displayFormat/embed.php');
     $fullpage = require('public/displayFormat/fullpage.php');
     $liveChat = require('public/displayFormat/liveChat.php');
     $popup = require('public/displayFormat/popup.php');
 
-    switch(get_object_vars($data)['displayFormat']) {
-      case 'live chat':
-        echo $liveChat($this->landbotScript(), $data, $this->params($data));
-        break;
-      case 'popup':
-        echo $popup($this->landbotScript(), $data, $this->params($data));
-        break;
-      case 'embed':
-        echo $embed($this->landbotScript(), $data, $this->params($data));
-        break;
-      case 'fullpage':
-        echo $fullpage($this->landbotScript(), $data, $this->params($data));
-        break;
-      default:
-        echo '';
+    if(is_page($pages) || (is_home() && in_array("home", $pages))) { 
+      switch(get_object_vars($data)['displayFormat']) {
+        case 'live chat':
+          echo $liveChat($this->landbotScript(), $data, $this->params($data));
+          break;
+        case 'popup':
+          echo $popup($this->landbotScript(), $data, $this->params($data));
+          break;
+        case 'embed':
+            echo $fullpage($this->landbotScript(), $data, $this->params($data));
+          break;
+        case 'fullpage':  
+          echo $fullpage($this->landbotScript(), $data, $this->params($data));
+          break;
+        default:
+          echo '';
+      }
     }
   }
 
@@ -170,12 +209,13 @@ class Landbot {
     $hideHeader = ($_POST['hideHeader'] === 'true');
     $widgetHeight = intval($_POST['widgetHeight']);
     $positionTop = intval($_POST['positionTop']);
+    $pagesSelected = $_POST['pagesSelected'];
 
     if($this -> checkExistTableInDB($table_name)) {
       $this -> createTable($table_name);
-      $this -> insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name);
+      $this -> insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $pagesSelected, $table_name);
     } else {
-      $this -> updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name);
+      $this -> updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $pagesSelected, $table_name);
     }
 
     $data = $this->getDataConfigurationFromDB()[0];
@@ -223,7 +263,7 @@ class Landbot {
   private function getDataConfigurationFromDB() {
     $table_name = $this->getTableName();
     if(!$this -> checkExistTableInDB($table_name)) {
-      $data = $this->getWpdb()->get_results("SELECT url, displayFormat, hideBackground, hideHeader, widgetHeight, positionTop
+      $data = $this->getWpdb()->get_results("SELECT url, displayFormat, hideBackground, hideHeader, widgetHeight, positionTop, pagesSelected
                                               FROM $table_name WHERE id=1", OBJECT);
       return $data;
     }    
@@ -245,7 +285,8 @@ class Landbot {
       hideBackground boolean,
       hideHeader boolean,
       widgetHeight int,
-      positionTop int
+      positionTop int,
+      pagesSelected text
     ) $charset_collate;";
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -266,7 +307,7 @@ class Landbot {
    * 
    * @return void
    */
-  private function insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name) {
+  private function insertData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $pagesSelected, $table_name) {
         
     $this->getWpdb()->insert( 
       $table_name, 
@@ -276,7 +317,8 @@ class Landbot {
         'hideBackground' =>  $hideBackground,
         'hideHeader' => $hideHeader,
         'widgetHeight' => $widgetHeight,
-        'positionTop' => $positionTop
+        'positionTop' => $positionTop,
+        'pagesSelected' => $pagesSelected
       ) 
     );
   }
@@ -293,7 +335,7 @@ class Landbot {
    * 
    * @return void
    */
-  private function updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $table_name) {
+  private function updateData($url, $displayFormat, $hideBackground, $hideHeader, $widgetHeight, $positionTop, $pagesSelected, $table_name) {
         
     $this->getWpdb()->update( 
       $table_name, 
@@ -303,7 +345,8 @@ class Landbot {
         'hideBackground' =>  $hideBackground,
         'hideHeader' => $hideHeader,
         'widgetHeight' => $widgetHeight,
-        'positionTop' => $positionTop
+        'positionTop' => $positionTop,
+        'pagesSelected' => $pagesSelected
       ),
       array( 
         'id' => 1

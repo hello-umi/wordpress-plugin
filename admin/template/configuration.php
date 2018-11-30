@@ -90,6 +90,14 @@
             
             </div>
         </div>
+        <div class="content-section">
+          <div>
+            <label>4. Select in which pages the Landbot will be visible</label>
+          </div>  
+          <ul id="list-pages">
+
+          </ul>
+        </div>
         
         <div id="alert-message"></div>
         
