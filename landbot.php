@@ -80,7 +80,9 @@ class Landbot {
     
     $data = $this->getDataConfigurationFromDB()[0];
 
-    // $shortCode = $this->shortCode($data);
+    $pages = explode(",", get_object_vars($data)['pagesSelected']);
+
+    $shortCode = $this->shortCode($data);
 
     $embed = require('public/displayFormat/embed.php');
     $fullpage = require('public/displayFormat/fullpage.php');
@@ -102,7 +104,7 @@ class Landbot {
       'livechat'  => $liveChat($this->landbotScript(), $data, $this->params($data)),
       'embed'     => $embed($this->landbotScript(), $data, $this->params($data)),
       'pages'     => $this->getPages(),
-      'home'      => $hp_sections
+      'pagesSelected' => $pages
 	  );
 
 	  wp_localize_script('landbot-admin', 'landbot_constants', $admin_options);

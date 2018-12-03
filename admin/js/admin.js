@@ -13,9 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if(elementQuerySelector) {
 
-    console.log(landbot_constants)
-
     setInitialConfiguration();
+
+    setSelectedPagesValue();
+    renderListsPages();
+    setSelectedPagesValue();
 
     document.querySelector('#landbot-admin-form').addEventListener('submit', function (e){
 
@@ -36,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
       formData.append('action', 'store_admin_data');
       formData.append('security', landbot_constants._nonce);
       formData.append('pagesSelected', pagesID.join(','));
-      console.log(pagesID.join(','))
       
       if(document.getElementById('authorization').value !== '') {
         if(pagesID.length > 0) {
@@ -138,7 +139,6 @@ function setInitialConfiguration() {
     checkMoreOptions(hideHeaderElement, 'hideHeader');
   }
 
-  renderListsPages();
   addClassDisplayFormat(displayFormat);
 }
 
@@ -155,21 +155,33 @@ function renderListsPages() {
     return pageElement(page);
   });
 
-  pages.push('<li><input onclick="checkPage(this)" type="checkbox" value="home"/> Home page </li>');
+  pages.unshift('<li><input onclick="checkPage(this)" type="checkbox" value="home"/> Home page </li>');
 
   listPagesElement.innerHTML = pages.join('');
 
 }
 
 function pageElement(page) {
-  return '<li><input onclick="checkPage(this)" type="checkbox" value="' + page.ID + '"/> ' + page.post_title + '</li>';
+  return '<li><input onclick="checkPage(this)" type="checkbox" value="' + page.ID + '" /> ' + page.post_title + '</li>';
 }
 
 function checkPage(element) {
   if(pagesID.includes(element.value)) {
-    var index = pagesID.indexOf(element.value)
+    var index = pagesID.indexOf(element.value);
     pagesID.splice(index, 1)
   } else {
     pagesID.push(element.value);
   }
+}
+
+function setSelectedPagesValue() {
+  var listPages = document.querySelectorAll('#list-pages li input');
+  listPages.forEach(function (element) {
+    landbot_constants.pagesSelected.forEach(function(page) {
+      if(element.value === page) {
+        element.checked = true;
+        pagesID.push(page);
+      } 
+    });
+  });
 }
