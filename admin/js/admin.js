@@ -78,15 +78,51 @@ function addClassDisplayFormat(format) {
     
   elements.forEach(function (element) {
     if(element.innerText.replace(/\n/ig, '') === format) {
-      var code = document.getElementById('code');
-      code.innerText = landbot_constants[format.toLowerCase().replace(/ /g,'')];
+      if(element.innerText.replace(/\n/ig, '') === 'EMBED') {
+        createElement();
+      } else {
+        var code = document.getElementById('code');
+        if(code) {
+          code.remove(code);
+        }
+      } 
+      
       element.classList.toggle('border-color');
 
       element.childNodes.forEach(function (childElement) {
         if(childElement.innerText === format) childElement.classList.toggle('display-format-color-selected');
-        })
-      }
-    })
+      })
+    }
+  })
+}
+
+function createElement() {
+  var codeElement = document.createElement('div');
+  var scriptCode = document.getElementById('script-code');
+  codeElement.innerHTML = codeContent();
+  scriptCode.appendChild(codeElement);
+  var contentElement = document.getElementById('code');
+  codeElement.appendChild(contentElement)
+  
+  elements().forEach(function (element) { 
+    var paragraph = document.createElement('p');
+    if(element.includes('position: absolute')) {
+      paragraph.innerText = '<div id="landbot-1543425349304" style="width: 100%; height: 500px;"></div>'
+    } else {
+      paragraph.innerText = element;
+    }
+    contentElement.appendChild(paragraph);
+  }); 
+}
+
+function elements() {
+  return landbot_constants.embed.split('\n').map(function (string) {
+    return string.trim();
+  })
+}
+
+function codeContent() {
+  return '<div id="code" class="script-section"></div>';
 }
   
 function removeClassDisplayFormat() {
@@ -147,7 +183,7 @@ function setInitialConfiguration() {
 function checkMoreoptionsCorrectValue(elementName) {
   return document.getElementById(elementName).value !== '' 
          && !isNaN(document.getElementById(elementName).value) 
-         && parseInt(document.getElementById(elementName).value) > 0 ? document.getElementById(elementName).value : 500;
+         && parseInt(document.getElementById(elementName).value) >= 0 ? document.getElementById(elementName).value : 500;
 }
 
 function renderListsPages() {

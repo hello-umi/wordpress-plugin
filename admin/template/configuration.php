@@ -56,7 +56,7 @@
         </div>
         </div>
         
-        <div class="content-section">
+        <div class="content-section" style="float: left;">
         <div>
             <label>3. More Options</label>
         </div>
@@ -85,12 +85,12 @@
         </div>
         </div>
 
-        <div class="content-section" id="script-code">
-            <div id="code" class="script-section">
-            
-            </div>
+        <div class="content-section" id="script-code" style="float: left;">
+            <h3>If you prefer to embed your Landbot in the page code directly you have to copy this snippet and paste it where you want it to appear</h3>
+            <hr/>
         </div>
-        <div class="content-section">
+        
+        <div class="content-section" style="clear: both;">
           <div>
             <label>4. Select in which pages the Landbot will be visible</label>
           </div>  

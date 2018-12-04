@@ -189,7 +189,6 @@
 }
 
 #script-code {
-  display: none;
   width: calc(100% - 430px);
   margin: 0
 }
@@ -198,9 +197,43 @@
   font-size: 15px;
 }
 
-.script-section {
-  height: 270px;
-  background-color: #4fecec;
-  margin: 0;
-  padding: 20px;
+#script-code {
+  color: #dc578a;
+  font-weight: bold;
+  background-color: #383535;
+}
+
+#script-code h3 {
+  color: #fff;
+  padding: 0 15px;
+}
+
+#script-code hr {
+  margin: 0 15px;
+  margin-bottom: 30px;
+}
+
+#script-code p {
+  font-size: 12px;
+  padding: 0 20px;
+}
+
+#script-code p:nth-of-type(2) {
+  margin-left: 30px;
+}
+
+#script-code p:nth-of-type(4) {
+  margin-left: 30px;
+}
+
+#script-code p:nth-of-type(5) {
+  margin-left: 50px;
+}
+
+#script-code p:nth-of-type(6) {
+  margin-left: 50px;
+}
+
+#script-code p:nth-of-type(7) {
+  margin-left: 30px;
 }
