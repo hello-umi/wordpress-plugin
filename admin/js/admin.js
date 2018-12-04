@@ -83,6 +83,8 @@ function addClassDisplayFormat(format) {
       } else {
         var code = document.getElementById('code');
         if(code) {
+          var scriptCode = document.getElementById('script-code');
+          scriptCode.style.display = 'none';
           code.remove(code);
         }
       } 
@@ -99,6 +101,7 @@ function addClassDisplayFormat(format) {
 function createElement() {
   var codeElement = document.createElement('div');
   var scriptCode = document.getElementById('script-code');
+  scriptCode.style.display = 'initial';
   codeElement.innerHTML = codeContent();
   scriptCode.appendChild(codeElement);
   var contentElement = document.getElementById('code');
