@@ -57,9 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
 }, false);
 
-function checkMoreOptions (element, option) {
-  element.classList.toggle('left');
-  moreOptionsCheck[option] = !moreOptionsCheck[option];
+function checkMoreOptions (option) {
+  var elementOption = document.getElementById(option);
+  if(elementOption) {
+    elementOption.classList.toggle('left');
+    moreOptionsCheck[option] = !moreOptionsCheck[option];
+  }
+  
 }
   
 function checkDisplayFormat (option) {
@@ -130,13 +134,11 @@ function setInitialConfiguration() {
   }
 
   if(parseInt(landbot_constants.hideBackground)) {
-    var hideBackgroundElement = document.getElementById('hideBackground');
-    checkMoreOptions(hideBackgroundElement, 'hideBackground');
+    checkMoreOptions('hideBackground');
   }
 
   if(parseInt(landbot_constants.hideHeader)) {
-    var hideHeaderElement = document.getElementById('hideHeader');
-    checkMoreOptions(hideHeaderElement, 'hideHeader');
+    checkMoreOptions('hideHeader');
   }
 
   addClassDisplayFormat(displayFormat);

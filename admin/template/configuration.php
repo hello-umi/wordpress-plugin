@@ -49,7 +49,7 @@
             </div>
             <div onclick="checkDisplayFormat('LIVE CHAT')" class="square-display-format display-format-color">
             <div>
-                <img src="<?php echo plugin_dir_url( __FILE__ ) . '../img/LIVECHAT.png'; ?>" alt="LIVE CHAT"/>
+                <img src="<?php echo plugin_dir_url( __FILE__ ) . '../img/livechat.png'; ?>" alt="LIVE CHAT"/>
             </div>
             <div> LIVE CHAT </div>
             </div>
@@ -66,16 +66,16 @@
                 <div>
                 Hide background
                 </div>
-                <div class="check-button" >
-                <div id="hideBackground" onclick="checkMoreOptions(this, 'hideBackground')" class="square-click left"></div>
+                <div onclick="checkMoreOptions('hideBackground')" class="check-button" >
+                <div id="hideBackground" class="square-click left"></div>
                 </div>
             </div>
             <div class="option-check">
                 <div>
                 Hide header
                 </div>
-                <div class="check-button" >
-                <div id="hideHeader" onclick="checkMoreOptions(this, 'hideHeader')" class="square-click left"></div>
+                <div onclick="checkMoreOptions('hideHeader')" class="check-button" >
+                <div id="hideHeader" class="square-click left"></div>
                 </div>
             </div>
             </div>
@@ -103,8 +103,8 @@
         
         </div>
         <div class="inside footer">
-        <button class="button button-primary" id="landbot-admin-save" type="submit">
-            Ok
+        <button class="button button-primary" type="submit">
+           Save changes
         </button>
         </div>
     </form>

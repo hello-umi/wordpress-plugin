@@ -175,7 +175,7 @@ class Landbot {
           echo $popup($this->landbotScript(), $data, $this->params($data));
           break;
         case 'embed':
-            echo $fullpage($this->landbotScript(), $data, $this->params($data));
+            echo $embed($this->landbotScript(), $data, $this->params($data));
           break;
         case 'fullpage':  
           echo $fullpage($this->landbotScript(), $data, $this->params($data));

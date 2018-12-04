@@ -125,16 +125,12 @@
 
 .option-check div:last-child {
   position: absolute;
+  cursor: pointer;
   right: 0;        
 }
 
 .footer {
   height: 20px;
-}
-
-.inside button {
-  position: absolute;
-  right: 15px;
 }
 
 .check-button {
@@ -146,7 +142,6 @@
 }
 
 .square-click {
-  cursor: pointer;
   position: absolute;
   top: -2px;
   width: 40px;
